@@ -27,3 +27,16 @@ export function postIterator(root) {
     return result
 }
 
+export function postRecursive(root) {
+    let result = []
+    let traverse = (root) => {
+        if (!root) {
+            return null;
+        }
+        traverse(root.left)
+        traverse(root.right)
+        result.push(root.val)
+    }
+    traverse(root)
+    return result;
+}
