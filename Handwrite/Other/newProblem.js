@@ -26,6 +26,13 @@ function myNew(constructor, ...args) {
   return result instanceof Object ? result : obj;
 }
 
+function myNew2(constructor, ...args) {
+  const obj = {};
+  obj.__proto__ = constructor.prototype;
+  const result = constructor.apply(obj, args);
+
+  return result instanceof Object ? result : obj; 
+}
 // ==================== 更简洁的实现 ====================
 
 function simpleNew(constructor, ...args) {

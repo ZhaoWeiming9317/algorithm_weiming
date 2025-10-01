@@ -28,12 +28,13 @@ function simpleCurry(func) {
 }
 
 function myCurry(func) {
-    return function curried(...args) {
-        return args.length >= func.length
-            ? func(...args)
-            : (...nextArgs) => curried(...args, ...nextArgs);
-    }
+  return function curried(...args) {
+    return args.length >= func.length
+      ? func(...args)
+      : (...nextArgs) => curried(...args, ...nextArgs);
+  }
 }
+
 // 使用示例
 
 // 1. 基本用法
