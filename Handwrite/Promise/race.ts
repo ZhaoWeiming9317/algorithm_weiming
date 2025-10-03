@@ -12,3 +12,5 @@ export const MyPromiseRace = <T>(promiseArr: Array<Promise<T> | T>): Promise<T> 
         });
     });
 };
+
+
