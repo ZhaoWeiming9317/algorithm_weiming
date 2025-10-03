@@ -27,12 +27,12 @@ function simpleCurry(func) {
   };
 }
 
-function myCurry(func) {
+function simpleMyCurry(func) {
   return function curried(...args) {
     return args.length >= func.length
       ? func(...args)
       : (...nextArgs) => curried(...args, ...nextArgs);
-  }
+  } 
 }
 
 // 使用示例
