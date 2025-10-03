@@ -38,6 +38,32 @@ function deepClone(target, map = new WeakMap()) {
     return clone;
 }
 
+function myDeepClone(target, map = new WeakMap()) {
+    if (target === null || typeof target !== 'object') {
+        return target;
+    }
+
+    if (map.has(target)) {
+        return map.get(target);
+    }
+    if (Array.isArray(target)) {
+        const clone = [];
+        map.set(target, clone);
+        target.forEach((item, index) => {
+            clone[index] = myDeepClone(target, item);
+        });
+        return clone;
+    }
+
+    const clone = {};
+    map.set(target, clone);
+    Reflect.ownKeys(target).forEach(key => {
+        clone[key] = myDeepClone(target[key], map);
+    })
+
+    return clone;
+}
+
 // 测试用例
 function test() {
     // 1. 基础测试

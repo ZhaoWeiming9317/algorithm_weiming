@@ -32,6 +32,22 @@ export function dailyTemperatures(temperatures) {
     return result;
 }
 
+export function dailyTemperaturesMy(temperatures) {
+    const result = Array.from({ length: n }, () => 0);
+    const stack = []; // 存储单调递减栈道
+
+    for (let i = 0; i < temperatures.length; i++) {
+        while (stack.length > 0 && temperatures[i] > temperatures[stack[stack.length - 1]]) {
+            // 弹出的元素找到了它的"下一个更大元素"
+            const prevIdx = stack.pop();
+            result[prevIdx] = i - prevIdx; // 计算天数差值
+        }
+        stack.push(i);
+    }
+
+    return result;
+}
+
 // 测试用例
 const testCases = [
     [73,74,75,71,69,72,76,73],

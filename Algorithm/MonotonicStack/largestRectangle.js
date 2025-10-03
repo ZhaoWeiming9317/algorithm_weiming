@@ -26,11 +26,12 @@ export function largestRectangleArea(heights) {
         // 当前高度小于栈顶高度时，计算矩形面积
         while (stack.length > 0 && currentHeight < heights[stack[stack.length - 1]]) {
             const height = heights[stack.pop()]; // 矩形的高度
+            // 单调递增栈，弹出的元素找到了“下一个更小”值的高度。
             // 矩形的宽度：右边界是当前位置，左边界是新的栈顶的下一个位置
             const width = stack.length === 0 ? i : i - stack[stack.length - 1] - 1;
             maxArea = Math.max(maxArea, height * width);
         }
-        
+
         stack.push(i);
     }
     
