@@ -28,6 +28,24 @@ function myInstanceof(obj, constructor) {
     return false;
 }
 
+function myInstanceof2(obj, constructor) {
+    if (obj === null || typeof obj !== 'object') {
+        return false;
+    }
+
+    let proto = Object.getPrototypeOf(obj);
+    const prototype = constructor.prototype;
+
+    while (proto !== null) {
+        if (proto === prototype) {
+            return true;
+        }
+        proto = Object.getPrototypeOf(proto);
+    }
+
+    return false;
+}
+
 // 测试用例
 function test() {
     // 1. 基本测试

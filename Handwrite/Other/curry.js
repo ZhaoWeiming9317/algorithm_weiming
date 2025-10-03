@@ -27,14 +27,13 @@ function simpleCurry(func) {
   };
 }
 
-function simpleMyCurry(func) {
+function simpleCurry2(func) {
   return function curried(...args) {
-    return args.length >= func.length
+    return args.length > func.length
       ? func(...args)
       : (...nextArgs) => curried(...args, ...nextArgs);
-  } 
+  }
 }
-
 // 使用示例
 
 // 1. 基本用法
