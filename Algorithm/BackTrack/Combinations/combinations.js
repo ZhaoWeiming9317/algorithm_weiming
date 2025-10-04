@@ -32,7 +32,7 @@ export function combine(n, k) {
         if (n - start + 1 < k - path.length) {
             return;
         }
-        
+
         // 从start开始遍历，避免重复
         for (let i = start; i <= n; i++) {
             // 做选择

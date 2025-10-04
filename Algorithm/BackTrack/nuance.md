@@ -227,7 +227,56 @@ function permute(nums) {
 }
 ```
 
-### 4. 排序的必要性
+### 4. start参数和排序的独立性
+
+#### start参数的作用
+```javascript
+// start参数的作用是纯粹的组合控制，即使不排序也能正确工作
+function combine(nums) {
+    // 假设nums = [3,2,6,7]（未排序）
+    function backtrack(start, path) {
+        // start=0时从3开始，后续只能用[3,2,6,7]
+        // start=1时从2开始，后续只能用[2,6,7]
+        // start=2时从6开始，后续只能用[6,7]
+        
+        for (let i = start; i < nums.length; i++) {
+            path.push(nums[i]);
+            backtrack(i + 1, path);  // 用i+1确保每个数字只用一次
+            path.pop();
+        }
+    }
+}
+```
+
+#### 排序的作用
+```javascript
+// 排序主要用于优化剪枝效率，与start参数的组合控制无关
+function combinationSum(candidates, target) {
+    candidates.sort((a, b) => a - b);  // 排序用于优化剪枝
+    
+    function backtrack(start, sum) {
+        for (let i = start; i < candidates.length; i++) {
+            if (sum + candidates[i] > target) {
+                break;  // 因为已排序，后面更大，可以直接break
+                // 如果没排序，这里就只能用continue
+            }
+            // ... 递归逻辑
+        }
+    }
+}
+```
+
+#### 两者的组合使用
+虽然start参数和排序是两个独立的机制，但它们经常一起使用：
+1. start参数保证组合不重复
+2. 排序让剪枝更高效
+
+这种组合在实际问题中能达到最优的效果：
+- 需要去重时：必须排序 + 使用start
+- 需要剪枝时：最好排序 + 使用start
+- 只需要组合控制时：只需要start，不需要排序
+
+### 5. 排序的必要性
 
 #### 何时需要排序？
 ```javascript
@@ -265,10 +314,37 @@ function combinationSum(candidates, target) {
         
         for (let i = start; i < candidates.length; i++) {
             // 排序后可以提前结束
-            if (candidates[i] > target) break;
+            if (candidates[i] > target) break;  // 注意这里是break而不是continue
+            /* 为什么用break而不是continue？
+               因为数组已经排序，如果当前数字已经使sum超过target，
+               那么后面的数字一定更大，一定也会超过target，
+               所以可以直接结束当前层的循环，不用继续检查后面的数字。
+               
+               如果数组没有排序：
+               比如[3,2,6,7]，当sum=4时遇到6，
+               发现4+6>7(target)，但不能break，
+               因为后面可能还有更小的数字(比如2)需要尝试，
+               这时就只能continue跳过当前数字。
+               
+               排序后变成[2,3,6,7]：
+               当sum=4时遇到6，发现4+6>7(target)，
+               因为已经排序，所以知道后面的数字都更大，
+               可以直接break，不用继续检查了。
+            */
             
             path.push(candidates[i]);
-            backtrack(i, target - candidates[i], path);
+            backtrack(i, target - candidates[i], path);  // 注意这里传入i而不是i+1
+            /* 为什么传入i而不是i+1？
+               这里传入i表示下一轮递归还可以使用当前的数字，
+               这就是"可重复使用"的实现方式。
+               
+               如果要求每个数字只能用一次，就要传入i+1：
+               backtrack(i + 1, target - candidates[i], path);
+               
+               这样可以保证：
+               - 传入i：可以重复使用当前数字
+               - 传入i+1：每个数字最多只能用一次
+            */
             path.pop();
         }
     }
