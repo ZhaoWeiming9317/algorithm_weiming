@@ -17,18 +17,17 @@ function promiseAll(promises) {
 
 function promiseAll2(promises) {
     return new Promise((resolve, reject) => {
-        let count = promises.length;
-        const results = [];
-
+        const result = [];
+        let count = 0;
+        
         promises.forEach((promise, index) => {
-            Promise.resolve(promise)
-                .then(result => {
-                    results[index] = result;
-                    count++;
-                    if (count === promises.length) {
-                        resolve(results);
-                    }
-                }).catch(reject);
-        })
-    })
+            Promise.resolve(promise).then((val) => {
+                result[index] = val;
+                count++;
+                if (count === promises.length) {
+                    resolve(result)
+                }
+            })
+        }).catch(reject);
+    });
 }

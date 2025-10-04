@@ -15,17 +15,19 @@ function promiseAllSettled(promises) {
 }
 
 function promiseMyAllSettled(promises) {
-    return Promise.all(promises.map((promise) => {
-        Promise.resolve(promise)
-            .then(value => ({
-                status: 'fulfilled',
-                value,
-            }))
-            .catch(value => ({
-                status: 'rejected',
-                value,
-            }))
-    }));
+    return Promise.all(
+        promises.map(promise => 
+            Promise.resolve(promise)
+                .then(value => ({
+                    status: 'fulfilled',
+                    value,
+                }))
+                .catch(reason => ({
+                    status: 'rejected',
+                    reason,
+                }))
+        )
+    )
 }
 // 测试
 const p1 = Promise.resolve(1);
