@@ -26,14 +26,14 @@ function promiseRetry2(fn, maxAttempts = 3, delay = 1000) {
         function attempt() {
             Promise.resolve(fn())
                 .then(resolve)
-                .catch(err => {
+                .catch(reason => {
                     if (attempts >= maxAttempts) {
-                        reject(err);
+                        reject(reason);
                         return;
                     }
                     attempts++;
                     setTimeout(attempt, delay);
-                });
+                })
         }
 
         attempt();

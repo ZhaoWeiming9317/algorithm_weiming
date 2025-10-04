@@ -33,8 +33,8 @@ function myInstanceof2(obj, constructor) {
         return false;
     }
 
-    let proto = Object.getPrototypeOf(obj);
-    const prototype = constructor.prototype;
+    let proto = obj.getPrototypeOf();
+    let prototype = constructor.prototype;
 
     while (proto !== null) {
         if (proto === prototype) {

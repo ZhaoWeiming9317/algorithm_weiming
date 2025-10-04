@@ -29,8 +29,8 @@ function simpleCurry(func) {
 
 function simpleCurry2(func) {
   return function curried(...args) {
-    return args.length > func.length
-      ? func(...args)
+    return args.length >= func.length 
+      ? func.apply(this, args)
       : (...nextArgs) => curried(...args, ...nextArgs);
   }
 }
