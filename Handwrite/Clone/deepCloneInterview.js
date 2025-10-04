@@ -46,21 +46,22 @@ function myDeepClone(target, map = new WeakMap()) {
     if (map.has(target)) {
         return map.get(target);
     }
+
     if (Array.isArray(target)) {
         const clone = [];
         map.set(target, clone);
-        target.forEach((item, index) => {
-            clone[index] = myDeepClone(target, item);
-        });
+        target.forEach((item, idx) => {
+            clone[idx] = myDeepClone(item, map);
+        })
         return clone;
     }
 
     const clone = {};
     map.set(target, clone);
-    Reflect.ownKeys(target).forEach(key => {
-        clone[key] = myDeepClone(target[key], map);
+    Reflect.ownKeys(target).forEach((key) => {
+        clone[key] = myDeepClone(target[key], map)
     })
-
+    
     return clone;
 }
 
