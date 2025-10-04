@@ -32,6 +32,25 @@ function lengthOfLIS(nums) {
     const dp = new Array(n).fill(1);
     let maxLen = 1;
     
+    for (let i = 1; i < n; i++) { // 外层循环：当前考虑的位置
+        for (let j = 0; j < i; j++) { // 内层循环：查找i之前的所有位置
+            if (nums[i] > nums[j]) {
+                dp[i] = Math.max(dp[i], dp[j] + 1);
+            }
+        }
+        maxLen = Math.max(maxLen, dp[i]);
+    }
+    
+    return maxLen;
+}
+
+function lengthOfLIS2(nums) {
+    if (nums.length === 0) return 0;
+
+    const n = nums.length;
+    const dp = new Array(n).fill(1);
+    let maxLen = 1;
+
     for (let i = 1; i < n; i++) {
         for (let j = 0; j < i; j++) {
             if (nums[i] > nums[j]) {
@@ -40,7 +59,7 @@ function lengthOfLIS(nums) {
         }
         maxLen = Math.max(maxLen, dp[i]);
     }
-    
+
     return maxLen;
 }
 
