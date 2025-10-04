@@ -15,6 +15,19 @@ function throttle(func, delay) {
   };
 }
 
+function myThrottle(func, delay) {
+  let lastTime = 0;
+
+  return function(...args) {
+    const now = Date.now();
+
+    if (now - lastTime >= delay) {
+      lastTime = Date.now();
+      func.apply(this, args);
+    }
+  }
+}
+
 // 使用示例
 const handleScroll = throttle(() => {
   console.log('页面滚动');
