@@ -40,6 +40,27 @@ function promiseRetry2(fn, maxAttempts = 3, delay = 1000) {
     });
 }
 
+function promiseRetry3(fn, maxAttempts = 3, delay) {
+    return new Promise((resolve, rejected) => {
+        let attempt = 1;
+
+        function func() {
+            Promise.resolve(fn)
+                .then((value) => {
+                    resolve(value);
+                }).catch((reason) => {
+                    if (attempt >= maxAttempts) {
+                        rejected(reason);
+                        return; 
+                    }
+                    attempt++;
+                    setTimeout(fn, delay);
+                })
+        }
+
+        func();
+    })
+}
 // 测试用例
 function test() {
     // 测试返回Promise的函数

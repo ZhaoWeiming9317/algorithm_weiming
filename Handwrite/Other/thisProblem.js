@@ -102,6 +102,20 @@ Function.prototype.myCall = function(context, ...args) {
   return result;
 };
 
+Function.prototype.myCall2 = function(context, ...args) {
+  context = context || globalThis;
+
+  const fnSymbol = Symbol('fn');
+  context[fnSymbol] = this;
+
+  // 谁调用，this就绑定到谁上面
+  const result = context[fnSymbol](...args);
+
+  delete context[fnSymbol];
+
+  return result;
+}
+
 // 4.2 手写 apply
 Function.prototype.myApply = function(context, argsArray) {
   context = context || globalThis;
@@ -131,6 +145,20 @@ Function.prototype.myBind = function(context, ...args) {
     return fn.apply(context, allArgs);
   };
 };
+
+Function.prototype.myBind2 = (context, ...args) => {
+  const fn = this;
+
+  return function(...newArgs) {
+    const allArgs = [...args, ...newArgs];
+
+    if (new.target) {
+      return new fn(...allArgs);
+    }
+
+    return fn.apply(context, allArgs);
+  }
+}
 
 // ==================== 5. 测试手写的方法 ====================
 

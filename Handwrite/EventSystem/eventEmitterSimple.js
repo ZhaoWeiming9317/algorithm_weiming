@@ -1,141 +1,100 @@
 /**
- * 简化版 EventEmitter 实现
- * 面试手写版本 - 核心功能，易于记忆
+ * 超简化版 EventEmitter - 面试背诵版本
+ * 只保留核心4个方法：on, emit, off, once
  */
-
 class EventEmitterSimple {
   constructor() {
-    // 存储事件和对应的监听器
     this.events = {};
   }
 
-  /**
-   * 添加事件监听器
-   * @param {string} eventName 事件名
-   * @param {Function} callback 回调函数
-   */
+  // 1. 监听事件
   on(eventName, callback) {
-    // 如果事件不存在，创建空数组
     if (!this.events[eventName]) {
       this.events[eventName] = [];
     }
-    
-    // 添加回调函数到事件数组
     this.events[eventName].push(callback);
+    return this;
   }
 
-  /**
-   * 添加一次性事件监听器
-   * @param {string} eventName 事件名
-   * @param {Function} callback 回调函数
-   */
+  // 2. 触发事件
+  emit(eventName, ...args) {
+    if (!this.events[eventName]) return this;
+    
+    this.events[eventName].forEach(callback => {
+      callback(...args);
+    });
+    return this;
+  }
+
+  // 3. 移除监听
+  off(eventName, callback) {
+    if (!this.events[eventName]) return this;
+    
+    if (!callback) {
+      delete this.events[eventName];
+    } else {
+      this.events[eventName] = this.events[eventName].filter(cb => cb !== callback);
+      if (this.events[eventName].length === 0) {
+        delete this.events[eventName];
+      }
+    }
+    return this;
+  }
+
+  // 4. 一次性监听
   once(eventName, callback) {
-    // 包装回调函数，执行后自动移除
     const onceCallback = (...args) => {
       callback(...args);
       this.off(eventName, onceCallback);
     };
-    
     this.on(eventName, onceCallback);
-  }
-
-  /**
-   * 触发事件
-   * @param {string} eventName 事件名
-   * @param {...any} args 传递给回调函数的参数
-   */
-  emit(eventName, ...args) {
-    // 如果事件不存在，直接返回
-    if (!this.events[eventName]) {
-      return false;
-    }
-    
-    // 执行所有回调函数
-    this.events[eventName].forEach(callback => {
-      callback(...args);
-    });
-    
-    return true;
-  }
-
-  /**
-   * 移除事件监听器
-   * @param {string} eventName 事件名
-   * @param {Function} callback 要移除的回调函数
-   */
-  off(eventName, callback) {
-    // 如果事件不存在，直接返回
-    if (!this.events[eventName]) {
-      return this;
-    }
-    
-    // 如果没有指定回调函数，移除所有监听器
-    if (!callback) {
-      delete this.events[eventName];
-      return this;
-    }
-    
-    // 移除指定的回调函数
-    this.events[eventName] = this.events[eventName].filter(cb => cb !== callback);
-    
-    // 如果数组为空，删除事件
-    if (this.events[eventName].length === 0) {
-      delete this.events[eventName];
-    }
-    
     return this;
-  }
-
-  /**
-   * 移除所有事件监听器
-   */
-  removeAllListeners(eventName) {
-    if (eventName) {
-      // 移除指定事件的所有监听器
-      delete this.events[eventName];
-    } else {
-      // 移除所有事件的所有监听器
-      this.events = {};
-    }
-    return this;
-  }
-
-  /**
-   * 获取指定事件的监听器数量
-   * @param {string} eventName 事件名
-   * @returns {number} 监听器数量
-   */
-  listenerCount(eventName) {
-    return this.events[eventName] ? this.events[eventName].length : 0;
   }
 }
 
-// 使用示例
+// 测试示例 - 演示闭包
 const emitter = new EventEmitterSimple();
 
-// 添加监听器
-emitter.on('test', (data) => {
-  console.log('收到数据:', data);
+console.log('=== 闭包演示 ===');
+
+// 演示闭包：外层变量被内层函数访问
+function demonstrateClosure() {
+  const outerVariable = '我是外层变量';
+  
+  // 这里创建了一个闭包
+  const innerFunction = () => {
+    console.log('内层函数访问外层变量:', outerVariable); // ← 闭包！
+  };
+  
+  return innerFunction;
+}
+
+const closureFunc = demonstrateClosure();
+closureFunc(); // 即使 demonstrateClosure 执行完毕，innerFunction 仍能访问 outerVariable
+
+console.log('\n=== EventEmitter 中的闭包 ===');
+
+// once 方法中的闭包演示
+emitter.once('closure-demo', (msg) => {
+  console.log('原始回调收到:', msg);
 });
 
-emitter.on('test', (data) => {
-  console.log('另一个监听器:', data);
-});
+// 查看闭包效果
+console.log('events 对象:', emitter.events['closure-demo']);
+console.log('闭包中的函数:', emitter.events['closure-demo'][0].toString());
 
-// 一次性监听器
-emitter.once('once', () => {
-  console.log('只会执行一次');
-});
+console.log('\n调用 emit:');
+emitter.emit('closure-demo', '闭包测试');
 
-// 触发事件
-emitter.emit('test', 'Hello World');
-emitter.emit('once');
-emitter.emit('once'); // 不会执行
+export default EventEmitterSimple;
 
-// 移除监听器
-emitter.off('test');
+// 这里写一下背诵点
+// 1. constructor 里面放一个 events 对象
+// 2. events 对象里面根据 eventName 作为 key 值, value 放一个数组，数组里面放着回调函数
+// 3. on 方法：如果没有事件就创建数组，然后push回调函数
+// 4. emit 方法：如果没有事件就返回false，否则forEach执行所有回调，参数通过 ...args 传递
+// 5. off 方法：如果没有回调就删除整个事件，否则filter过滤掉指定回调
+// 6. once 方法关键点：创建包装函数，执行后自动调用off移除自己
+//    - 参数传递：emit的...args → forEach调用 → onceCallback的...args → 原始callback的...args
 
-// 获取监听器数量
-console.log(emitter.listenerCount('test')); // 0
-
-module.exports = EventEmitterSimple;
+// 闭包：函数能够访问其外层作用域中的变量，即使外层函数已经执行完毕。

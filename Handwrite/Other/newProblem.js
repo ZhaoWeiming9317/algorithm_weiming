@@ -26,13 +26,10 @@ function myNew(constructor, ...args) {
   return result instanceof Object ? result : obj;
 }
 
-function myNew2(constructor, ...args) {
+function myNews(constructor, ...args) {
   const obj = {};
-
-  // 设置原型
   Object.setPrototypeOf(obj, constructor.prototype);
 
-  // 生成实例
   const result = constructor.apply(obj, args);
 
   return result instanceof Object ? result : obj;

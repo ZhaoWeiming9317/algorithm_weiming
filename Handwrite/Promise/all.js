@@ -31,3 +31,20 @@ function promiseAll2(promises) {
         }).catch(reject);
     });
 }
+    
+function promiseAll3(promises) {
+    return new Promise((resolve, reject) => {
+        const result = [];
+        const count = 0;
+
+        promises.forEach((promise, idx) => {
+            Promise.resolve(promise).then((res) => {
+                result[idx] = res;
+                count++;
+                if (count === promise.length) {
+                    resolve(result);
+                }
+            }).catch(reject);
+        });
+    });
+}
