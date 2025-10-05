@@ -14,7 +14,7 @@ const delegate = (element, eventType, selector, handler) => {
 
   element.addEventListener(eventType, event => {
     let target = event.target;
-    
+
     while (target && target !== element) {
       if (target.matches(selector)) {
         // 将 this 绑定到匹配的元素，传递事件对象
