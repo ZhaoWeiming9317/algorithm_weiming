@@ -98,3 +98,52 @@ export default EventEmitterSimple;
 //    - 参数传递：emit的...args → forEach调用 → onceCallback的...args → 原始callback的...args
 
 // 闭包：函数能够访问其外层作用域中的变量，即使外层函数已经执行完毕。
+
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+
+  on(eventName, callback) {
+    if (this.events[eventName]) {
+      this.events[eventName].push(callback)
+    } else {
+      this.events[eventName] = [];
+    }
+    return this;
+  }
+
+  off(eventName, callback) {
+    if (!this.events[eventName]) {
+      return this;
+    }
+    if (!callback) {
+      this.events[eventName] = [];
+    }
+    if (this.events[eventName]) {
+      this.events[eventName] = this.events[eventName].filter(cb => callback !== cb);
+    }
+
+    return this;
+  }
+
+  emit(eventName, ...args) {
+    if (!this.events[eventName]) {
+      return;
+    }
+
+    this.events.forEach(callback => {
+      callback(...args);
+    })
+    return this;
+  }
+
+  once(eventName, callback) {
+    const onceCallback = (...args) => {
+      callback(...args);
+      this.off(eventName, onceCallback);
+    }
+    this.on(eventName, onceCallback);
+    return this;
+  }
+}

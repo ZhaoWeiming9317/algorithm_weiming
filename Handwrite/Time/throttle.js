@@ -17,13 +17,13 @@ function throttle(func, delay) {
 
 function myThrottle(func, delay) {
   let lastTime = 0;
-
+  
   return function(...args) {
     const now = Date.now();
 
     if (now - lastTime >= delay) {
-      lastTime = Date.now();
-      func.apply(this, args);
+      lastTime = now;
+      func.apply(this, ...args);
     }
   }
 }
