@@ -1,12 +1,11 @@
 /**
- * 最简单的堆实现 - 支持最小堆和最大堆
- * 面试背诵版本
+ * 最小堆实现 - 最简单版本
+ * 只支持最小堆，根节点是最小值
  */
 
 class Heap {
-  constructor(compareFn = (a, b) => a - b) {
+  constructor() {
     this.heap = [];
-    this.compare = compareFn; // 比较函数
   }
 
   /**
@@ -55,6 +54,10 @@ class Heap {
     const last = this.heap.pop();
 
     if (this.heap.length > 0) {
+      // 删除根节点后，把最后一个元素放到根节点位置
+      // 注意：last 不是"最大值"，只是数组的最后一个元素
+      // 这样做是为了保持数组紧凑，然后通过 heapifyDown 重新调整成最小堆
+      // 例如：[1,3,2,5,4] -> 删除1后变成 [4,3,2,5] -> 把4放到根节点 [4,3,2,5] -> 调整后 [2,3,4,5]
       this.heap[0] = last;
       this.heapifyDown(0);
     }
@@ -63,55 +66,52 @@ class Heap {
   }
 
   /**
-   * 向上调整堆
+   * 向上调整堆（递归版本）
    * @param {number} index - 当前节点索引
    */
   heapifyUp(index) {
-    while (index > 0) {
-      const parentIndex = Math.floor((index - 1) / 2);
-      
-      // 如果当前节点已经满足堆性质，退出
-      if (this.compare(this.heap[index], this.heap[parentIndex]) >= 0) {
-        break;
-      }
-      
-      // 交换当前节点和父节点
-      [this.heap[index], this.heap[parentIndex]] = [this.heap[parentIndex], this.heap[index]];
-      index = parentIndex;
+    if (index <= 0) return;
+    
+    const parentIndex = Math.floor((index - 1) / 2);
+    
+    // 子节点 >= 父节点时停止（最小堆性质）
+    if (this.heap[index] >= this.heap[parentIndex]) {
+      return;
     }
+    
+    // 交换当前节点和父节点
+    [this.heap[index], this.heap[parentIndex]] = [this.heap[parentIndex], this.heap[index]];
+    
+    // 递归向上调整
+    this.heapifyUp(parentIndex);
   }
 
   /**
-   * 向下调整堆
+   * 向下调整堆（递归版本）
    * @param {number} index - 当前节点索引
    */
   heapifyDown(index) {
     const n = this.heap.length;
+    if (index >= n) return;
     
-    while (index < n) {
-      let target = index;
-      const leftChild = 2 * index + 1;
-      const rightChild = 2 * index + 2;
-      
-      // 比较左子节点
-      if (leftChild < n && this.compare(this.heap[leftChild], this.heap[target]) < 0) {
-        target = leftChild;
-      }
-      
-      // 比较右子节点
-      if (rightChild < n && this.compare(this.heap[rightChild], this.heap[target]) < 0) {
-        target = rightChild;
-      }
-      
-      // 如果已经满足堆性质，退出
-      if (target === index) {
-        break;
-      }
-      
-      // 交换当前节点和目标节点
-      [this.heap[index], this.heap[target]] = [this.heap[target], this.heap[index]];
-      index = target;
+    let target = index;
+    const leftChild = 2 * index + 1;
+    const rightChild = 2 * index + 2;
+    
+    // 找更小的子节点（最小堆）
+    if (leftChild < n && this.heap[leftChild] < this.heap[target]) {
+      target = leftChild;
+    } else if (rightChild < n && this.heap[rightChild] < this.heap[target]) {
+      target = rightChild;
+    } else {
+      return;
     }
+    
+    // 交换当前节点和目标节点
+    [this.heap[index], this.heap[target]] = [this.heap[target], this.heap[index]];
+    
+    // 递归向下调整
+    this.heapifyDown(target);
   }
 
   /**

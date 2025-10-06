@@ -126,3 +126,181 @@ Array.prototype.myFlat = function(depth = 1) {
   
   return result;
 };
+
+// ==================== 数组去重方法 ====================
+
+/**
+ * 方法1：使用 Set 去重（最简单）
+ * @param {Array} arr 要去重的数组
+ * @returns {Array} 去重后的新数组
+ * 
+ * 优点：代码简洁，性能好
+ * 缺点：无法处理对象去重
+ */
+function uniqueBySet(arr) {
+  return [...new Set(arr)];
+}
+
+/**
+ * 方法2：使用 filter + indexOf 去重
+ * @param {Array} arr 要去重的数组
+ * @returns {Array} 去重后的新数组
+ * 
+ * 优点：兼容性好
+ * 缺点：性能较差，时间复杂度 O(n²)
+ */
+function uniqueByFilter(arr) {
+  return arr.filter((item, index) => arr.indexOf(item) === index);
+}
+
+/**
+ * 方法3：使用 reduce 去重
+ * @param {Array} arr 要去重的数组
+ * @returns {Array} 去重后的新数组
+ * 
+ * 优点：函数式编程风格
+ * 缺点：性能一般
+ */
+function uniqueByReduce(arr) {
+  return arr.reduce((acc, current) => {
+    if (!acc.includes(current)) {
+      acc.push(current);
+    }
+    return acc;
+  }, []);
+}
+
+/**
+ * 方法4：使用 Map 去重
+ * @param {Array} arr 要去重的数组
+ * @returns {Array} 去重后的新数组
+ * 
+ * 优点：性能好，可以处理对象
+ * 缺点：代码稍复杂
+ */
+function uniqueByMap(arr) {
+  const map = new Map();
+  return arr.filter(item => {
+    if (map.has(item)) {
+      return false;
+    }
+    map.set(item, true);
+    return true;
+  });
+}
+
+/**
+ * 方法5：使用对象属性去重
+ * @param {Array} arr 要去重的数组
+ * @returns {Array} 去重后的新数组
+ * 
+ * 优点：性能好
+ * 缺点：会将数字转为字符串
+ */
+function uniqueByObject(arr) {
+  const obj = {};
+  const result = [];
+  
+  for (let i = 0; i < arr.length; i++) {
+    const item = arr[i];
+    if (!obj[item]) {
+      obj[item] = true;
+      result.push(item);
+    }
+  }
+  
+  return result;
+}
+
+/**
+ * 方法6：使用 for 循环去重
+ * @param {Array} arr 要去重的数组
+ * @returns {Array} 去重后的新数组
+ * 
+ * 优点：性能好，逻辑清晰
+ * 缺点：代码较长
+ */
+function uniqueByForLoop(arr) {
+  const result = [];
+  
+  for (let i = 0; i < arr.length; i++) {
+    let isDuplicate = false;
+    
+    for (let j = 0; j < result.length; j++) {
+      if (arr[i] === result[j]) {
+        isDuplicate = true;
+        break;
+      }
+    }
+    
+    if (!isDuplicate) {
+      result.push(arr[i]);
+    }
+  }
+  
+  return result;
+}
+
+/**
+ * 方法7：对象数组去重（根据某个属性）
+ * @param {Array} arr 要去重的对象数组
+ * @param {string} key 去重的属性名
+ * @returns {Array} 去重后的新数组
+ * 
+ * 优点：可以处理对象数组
+ * 缺点：只能根据单个属性去重
+ */
+function uniqueByKey(arr, key) {
+  const map = new Map();
+  return arr.filter(item => {
+    const value = item[key];
+    if (map.has(value)) {
+      return false;
+    }
+    map.set(value, true);
+    return true;
+  });
+}
+
+/**
+ * 方法8：对象数组去重（根据多个属性）
+ * @param {Array} arr 要去重的对象数组
+ * @param {Array} keys 去重的属性名数组
+ * @returns {Array} 去重后的新数组
+ * 
+ * 优点：可以根据多个属性去重
+ * 缺点：代码复杂
+ */
+function uniqueByKeys(arr, keys) {
+  const map = new Map();
+  return arr.filter(item => {
+    const keyStr = keys.map(key => item[key]).join('|');
+    if (map.has(keyStr)) {
+      return false;
+    }
+    map.set(keyStr, true);
+    return true;
+  });
+}
+
+// 测试用例
+const testArray = [1, 2, 2, 3, 3, 3, 4, 5, 5];
+const testObjectArray = [
+  { id: 1, name: 'Alice' },
+  { id: 2, name: 'Bob' },
+  { id: 1, name: 'Alice' },
+  { id: 3, name: 'Charlie' }
+];
+
+console.log('原数组:', testArray);
+console.log('Set去重:', uniqueBySet(testArray));
+console.log('Filter去重:', uniqueByFilter(testArray));
+console.log('Reduce去重:', uniqueByReduce(testArray));
+console.log('Map去重:', uniqueByMap(testArray));
+console.log('Object去重:', uniqueByObject(testArray));
+console.log('ForLoop去重:', uniqueByForLoop(testArray));
+
+console.log('\n对象数组去重:');
+console.log('原数组:', testObjectArray);
+console.log('按id去重:', uniqueByKey(testObjectArray, 'id'));
+console.log('按多个属性去重:', uniqueByKeys(testObjectArray, ['id', 'name']));

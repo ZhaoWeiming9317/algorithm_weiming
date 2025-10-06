@@ -9,6 +9,23 @@
  * - 中序遍历：左 → 根 → 右（根节点分割左右子树）
  * - 后序遍历：左 → 右 → 根（最后一个元素是根）
  * 
+ * 🔑 关键理解：
+ * 1. 前序遍历的第一个元素就是当前子树的根节点
+ *    - 前序遍历：根 -> 左 -> 右
+ *    - 所以 preorder[0] 就是整个树的根节点
+ *    - preorder[1] 就是左子树的根节点
+ *    - preorder[2] 就是右子树的根节点
+ * 
+ * 2. 中序遍历中根节点的位置将树分为左右两部分
+ *    - 中序遍历：左 -> 根 -> 右
+ *    - 根节点左边的所有节点都是左子树
+ *    - 根节点右边的所有节点都是右子树
+ * 
+ * 3. 构建过程：
+ *    - 从前序遍历中取根节点（按顺序）
+ *    - 在中序遍历中找到根节点位置
+ *    - 递归构建左右子树
+ * 
  * 算法步骤：
  * 1. 从前序/后序中确定根节点
  * 2. 在中序中找到根节点位置，分割左右子树
@@ -98,21 +115,38 @@ export function buildTreeFromPreorderInorder(preorder, inorder) {
     let preorderIndex = 0;
     
     function buildTree(inorderStart, inorderEnd) {
+        // 边界条件：如果中序遍历的起始位置大于结束位置，说明没有节点了
         if (inorderStart > inorderEnd) {
             return null;
         }
         
-        // 前序遍历的当前元素就是当前子树的根节点
+        // 🔑 关键点1：前序遍历的第一个元素就是当前子树的根节点
+        // 前序遍历：根 -> 左 -> 右
+        // 所以 preorder[preorderIndex] 就是当前要构建的子树的根节点
+        // 例如：前序遍历 [3,9,20,15,7]
+        // 第一次调用：rootVal = 3（整个树的根节点）
+        // 第二次调用：rootVal = 9（左子树的根节点）
+        // 第三次调用：rootVal = 20（右子树的根节点）
         const rootVal = preorder[preorderIndex++];
         const root = new TreeNode(rootVal);
         
-        // 在中序遍历中找到根节点的位置
+        // 🔑 关键点2：在中序遍历中找到根节点的位置
+        // 中序遍历：左 -> 根 -> 右
+        // 根节点在中序遍历中的位置，将中序遍历分为两部分：
+        // - 左边：左子树的所有节点
+        // - 右边：右子树的所有节点
+        // 例如：中序遍历 [9,3,15,20,7]
+        // 根节点3在位置1，左边[9]是左子树，右边[15,20,7]是右子树
         const rootIndex = inorderMap.get(rootVal);
         
-        // 先构建左子树，再构建右子树（前序遍历的顺序）
-        root.left = buildTree(inorderStart, rootIndex - 1);
-        root.right = buildTree(rootIndex + 1, inorderEnd);
-        
+        // 🔑 关键点3：递归构建左右子树
+        // 左子树：中序遍历中根节点左边的所有节点
+        // 右子树：中序遍历中根节点右边的所有节点
+        // 注意：这里先构建左子树，再构建右子树，这是前序遍历的顺序
+        // 例如：根节点3，左子树范围[0,0]，右子树范围[2,4]
+        root.left = buildTree(inorderStart, rootIndex - 1);    // 构建左子树
+        root.right = buildTree(rootIndex + 1, inorderEnd);     // 构建右子树
+
         return root;
     }
     

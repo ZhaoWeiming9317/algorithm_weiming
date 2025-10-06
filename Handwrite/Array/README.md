@@ -98,3 +98,32 @@
 [1, [2, [3, 4]]].myFlat()    // [1, 2, [3, 4]]
 [1, [2, [3, 4]]].myFlat(2)   // [1, 2, 3, 4]
 ```
+
+## 树形结构转换
+
+### 问题描述
+将包含父子关系的扁平数组转换为树形结构，这是前端开发中的常见需求。
+
+### 实现文件
+- `treeTransform.js` - 包含四种不同的实现方法
+- `treeTransform.md` - 详细的使用说明和性能分析
+
+### 快速使用
+```javascript
+import { arrayToTreeOptimized } from './treeTransform.js';
+
+const flatArray = [
+    { parentId: -1, id: 1, name: 'node1' },
+    { parentId: 1, id: 2, name: 'node2' },
+    { parentId: 1, id: 3, name: 'node3' },
+    { parentId: 2, id: 4, name: 'node4' }
+];
+
+const tree = arrayToTreeOptimized(flatArray);
+```
+
+### 性能对比
+- **递归实现**: O(n²) - 适合理解算法逻辑
+- **Map优化**: O(n) - 推荐生产环境使用
+- **一次遍历**: O(n) - 需要数据有序
+- **灵活实现**: O(n) - 支持多种根节点标识

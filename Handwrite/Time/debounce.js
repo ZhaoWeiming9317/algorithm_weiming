@@ -12,6 +12,24 @@ function debounce(func, delay) {
   }
 }
 
+function debounceLeading(func, delay) {
+  let timer;
+  let hasExecuted = false;
+  
+  return function(...args) {
+    if (!hasExecuted) {
+      // 第一次立即执行
+      func(...args);
+      hasExecuted = true;
+    }
+    
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      hasExecuted = false; // 重置标志
+    }, delay);
+  }
+}
+
 // 使用示例
 const handleSearch = debounce((keyword) => {
   console.log('搜索:', keyword);
