@@ -41,7 +41,7 @@ function sortList(head) {
  */
 function findMiddle(head) {
   let slow = head;
-  let fast = head.next; // 从 next 出发找中点才合理
+  let fast = head.next; // 需要第一个中点
   
   while (fast && fast.next) {
     slow = slow.next;

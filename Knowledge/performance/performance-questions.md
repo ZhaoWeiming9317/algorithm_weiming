@@ -233,7 +233,7 @@ Promise.race(promises);
 **Q: async/await 和 Promise.then 的性能差异？**
 
 **A:** 性能差异：
-- `Promise.then`：稍快，直接执行
+- ``：稍快，直接执行
 - `async/await`：稍慢，需要额外的函数调用和状态管理
 - 选择原则：优先考虑代码可读性
 

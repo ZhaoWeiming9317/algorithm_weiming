@@ -2,6 +2,48 @@
 
 ## 实现模块
 
+### 0. async/await 手写实现 ⭐
+
+**实现文件**: `async-await.js`
+
+**核心原理**:
+- async/await 是 Generator + 自动执行器的语法糖
+- async 函数返回一个 Promise
+- await 暂停函数执行，等待 Promise 完成
+
+**实现要点**:
+1. **Generator 函数**
+   - 使用 yield 实现暂停
+   - 使用 next() 恢复执行
+   - 通过 value 和 done 控制流程
+
+2. **自动执行器**
+   - 递归调用 next()
+   - 处理 Promise 结果
+   - 错误传递（throw）
+
+3. **错误处理**
+   - try/catch 捕获同步错误
+   - Promise.catch 捕获异步错误
+   - gen.throw() 将错误传回 Generator
+
+**使用示例**:
+```javascript
+const asyncFunc = asyncToGenerator(function* () {
+    const result1 = yield Promise.resolve('First');
+    const result2 = yield Promise.resolve('Second');
+    return [result1, result2];
+});
+
+asyncFunc().then(results => {
+    console.log(results); // ['First', 'Second']
+});
+```
+
+**详细文档**: 查看 `async-await.md`
+
+---
+
 ### 1. 并发控制器（Scheduler）
 
 核心功能：

@@ -227,7 +227,283 @@ function permute(nums) {
 }
 ```
 
-### 4. start参数和排序的独立性
+### 4. 组合问题：可以取重复值 vs 不可以取重复值
+
+这是一个非常重要的区别！**关键在于下一次递归时传入的参数是 `i` 还是 `i + 1`**。
+
+#### 情况1：不可以取重复值（每个元素只能用一次）
+
+```javascript
+// LeetCode 77: 组合
+// 从 [1,2,3,4] 中选出 2 个数的组合
+// 每个数字只能用一次
+
+function combine(n, k) {
+    const result = [];
+    
+    function backtrack(start, path) {
+        if (path.length === k) {
+            result.push([...path]);
+            return;
+        }
+        
+        for (let i = start; i <= n; i++) {
+            path.push(i);
+            // ⭐ 关键：i + 1，下一层从 i+1 开始
+            // 意味着当前数字 i 用过后，下次不能再用
+            backtrack(i + 1, path);
+            path.pop();
+        }
+    }
+    
+    backtrack(1, []);
+    return result;
+}
+
+// 示例：combine(4, 2)
+// 决策树：
+//                    []
+//          ┌─────────┼──────┬─────┐
+//          1         2      3     4
+//        ┌─┼─┐      ┌┴┐    ┴
+//       [1,2][1,3][1,4][2,3][2,4][3,4]
+//
+// 结果：[[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]
+// 注意：没有 [1,1] 或 [2,2]，每个数字只用一次
+```
+
+#### 情况2：可以取重复值（每个元素可以无限次使用）
+
+```javascript
+// LeetCode 39: 组合总和
+// 给定 candidates = [2,3,6,7], target = 7
+// 找出所有相加之和为 target 的组合
+// 每个数字可以无限次使用
+
+function combinationSum(candidates, target) {
+    const result = [];
+    
+    function backtrack(start, path, sum) {
+        if (sum === target) {
+            result.push([...path]);
+            return;
+        }
+        
+        if (sum > target) return; // 剪枝
+        
+        for (let i = start; i < candidates.length; i++) {
+            path.push(candidates[i]);
+            // ⭐ 关键：传入 i（不是 i + 1）
+            // 意味着下一层还可以继续选择当前数字
+            backtrack(i, path, sum + candidates[i]);
+            path.pop();
+        }
+    }
+    
+    backtrack(0, [], 0);
+    return result;
+}
+
+// 示例：combinationSum([2,3,6,7], 7)
+// 决策树（部分）：
+//                      []
+//            ┌──────────┼──────────┐
+//            2          3          6          7
+//         ┌──┼──┐       ┼          
+//        2,2 2,3 2,6   3,3
+//        ↓              ↓
+//      2,2,2          3,3,... (>7剪枝)
+//      ↓
+//    2,2,3 (=7✓)
+//
+// 结果：[[2,2,3],[7]]
+// 注意：有 [2,2,3]，因为 2 可以重复使用
+```
+
+#### 对比：i 还是 i + 1？
+
+```javascript
+// ❌ 错误示例：可以重复使用，但传了 i + 1
+function combinationSumWrong(candidates, target) {
+    function backtrack(start, path, sum) {
+        if (sum === target) {
+            result.push([...path]);
+            return;
+        }
+        
+        for (let i = start; i < candidates.length; i++) {
+            path.push(candidates[i]);
+            // ❌ 传入 i + 1，意味着下次不能用当前数字了
+            backtrack(i + 1, path, sum + candidates[i]);
+            path.pop();
+        }
+    }
+}
+// 结果：只能得到 [[7]]，得不到 [2,2,3]
+
+// ✅ 正确示例：可以重复使用，传 i
+function combinationSumCorrect(candidates, target) {
+    function backtrack(start, path, sum) {
+        if (sum === target) {
+            result.push([...path]);
+            return;
+        }
+        
+        for (let i = start; i < candidates.length; i++) {
+            path.push(candidates[i]);
+            // ✅ 传入 i，可以继续使用当前数字
+            backtrack(i, path, sum + candidates[i]);
+            path.pop();
+        }
+    }
+}
+// 结果：[[2,2,3],[7]]
+```
+
+#### 详细的决策树对比
+
+**情况1：不可以重复（i + 1）**
+
+```
+candidates = [2,3], k = 2
+
+                    []                    start=0
+                ┌────┴────┐
+                2         3               start=1,2
+                ↓         
+               [2,3]                      start=2 (✓)
+               
+结果：只有 [2,3]，因为选了2后，start变成1，不能再选2
+```
+
+**情况2：可以重复（i）**
+
+```
+candidates = [2,3], target = 6
+
+                    []                    start=0, sum=0
+                ┌────┴────┐
+                2         3               start=0,1
+            ┌───┴───┐     ↓
+            2       3     3               start=0,1,1
+        ┌───┴───┐   ↓     ↓
+        2       3  [2,3,2] [3,3]          start=0,1
+        ↓          (>6)    (=6✓)
+      [2,2,2]
+      (=6✓)
+      
+结果：[[2,2,2],[3,3]]，因为可以重复选择
+```
+
+#### 核心规律总结
+
+| 特性 | 不可重复 | 可以重复 |
+|------|---------|---------|
+| **递归参数** | `backtrack(i + 1, ...)` | `backtrack(i, ...)` |
+| **含义** | 下一层从 i+1 开始 | 下一层从 i 开始（包括自己）|
+| **典型题目** | 组合、子集 | 组合总和 |
+| **LeetCode** | 77, 78, 90 | 39, 40 |
+| **示例结果** | [1,2], [1,3] | [2,2,3], [2,3,2] |
+
+#### 实际代码对比
+
+```javascript
+// 1. 组合（不可重复）- LeetCode 77
+function combine(n, k) {
+    function backtrack(start, path) {
+        if (path.length === k) {
+            result.push([...path]);
+            return;
+        }
+        for (let i = start; i <= n; i++) {
+            backtrack(i + 1, [...path, i]);  // ← i + 1
+        }
+    }
+}
+
+// 2. 组合总和（可以重复）- LeetCode 39
+function combinationSum(candidates, target) {
+    function backtrack(start, path, sum) {
+        if (sum === target) {
+            result.push([...path]);
+            return;
+        }
+        if (sum > target) return;
+        
+        for (let i = start; i < candidates.length; i++) {
+            backtrack(i, [...path, candidates[i]], sum + candidates[i]);  // ← i
+        }
+    }
+}
+
+// 3. 组合总和 II（不可重复，但数组有重复）- LeetCode 40
+function combinationSum2(candidates, target) {
+    candidates.sort((a, b) => a - b);
+    
+    function backtrack(start, path, sum) {
+        if (sum === target) {
+            result.push([...path]);
+            return;
+        }
+        if (sum > target) return;
+        
+        for (let i = start; i < candidates.length; i++) {
+            // 同一层级去重
+            if (i > start && candidates[i] === candidates[i - 1]) continue;
+            
+            backtrack(i + 1, [...path, candidates[i]], sum + candidates[i]);  // ← i + 1
+        }
+    }
+}
+```
+
+#### 记忆口诀
+
+```
+i + 1：此数用完，下次从下一个开始（不可重复）
+i    ：此数还能用，下次还从我开始（可以重复）
+```
+
+#### 常见错误
+
+```javascript
+// ❌ 错误1：题目要求可以重复，但写了 i + 1
+function combinationSum(candidates, target) {
+    function backtrack(start, path, sum) {
+        if (sum === target) {
+            result.push([...path]);
+            return;
+        }
+        for (let i = start; i < candidates.length; i++) {
+            backtrack(i + 1, [...path, candidates[i]], sum + candidates[i]);
+            //         ↑ 错误！应该是 i
+        }
+    }
+}
+// 结果：漏掉了很多可以重复使用的组合
+
+// ❌ 错误2：题目要求不可重复，但写了 i
+function combine(n, k) {
+    function backtrack(start, path) {
+        if (path.length === k) {
+            result.push([...path]);
+            return;
+        }
+        for (let i = start; i <= n; i++) {
+            backtrack(i, [...path, i]);
+            //         ↑ 错误！应该是 i + 1
+        }
+    }
+}
+// 结果：会产生 [1,1,1] 这样的重复组合
+
+// ✅ 正确判断方法
+1. 看题目是否说"每个数字只能用一次" → 用 i + 1
+2. 看题目是否说"可以无限次使用" → 用 i
+3. 看示例中是否有重复数字 → 有重复用 i，没有用 i + 1
+```
+
+### 5. start参数和排序的独立性
 
 #### start参数的作用
 ```javascript
