@@ -48,3 +48,19 @@ function promiseAll3(promises) {
         });
     });
 }
+
+function promiseAll4(promises) {
+    return new Promise((resolve, reject) => {
+        let count = 0;
+        const result = [];
+        promises.forEach((promise) => {
+            Promise.resolve(promise).then((res) => {
+                result[idx] = res;
+                count++;
+                if (count === promises.length) {
+                    resolve(result);
+                }
+            }).catch(reject);
+        })
+    });
+}

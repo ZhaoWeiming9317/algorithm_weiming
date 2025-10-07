@@ -29,17 +29,9 @@ function simpleCurry(func) {
 
 function simpleCurry2(func) {
   return function curried(...args) {
-    return args.length >= func.length 
-      ? func.apply(this, args)
-      : (...nextArgs) => curried(...args, ...nextArgs);
-  }
-}
-
-function simpleCurry3(func) {
-  return function curried(...args) {
-    return func.length <= args.length ?
-      func(...args)  // 修复：应该展开参数
-      : (...nextArgs) => curried(...args, ...nextArgs);
+    return args.length >= func.length ? 
+      func(...args) :
+      (...nextArgs) => curried(...args, ...nextArgs);
   }
 }
 

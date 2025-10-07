@@ -28,35 +28,20 @@ function myInstanceof(obj, constructor) {
     return false;
 }
 
-function myInstanceof2(obj, constructor) {
+function instanceof3(obj, constructor) {
     if (obj === null || typeof obj !== 'object') {
         return false;
     }
 
-    let proto = obj.getPrototypeOf();
-    let prototype = constructor.prototype;
-
-    while (proto !== null) {
-        if (proto === prototype) {
-            return true;
-        }
-        proto = Object.getPrototypeOf(proto);
-    }
-
-    return false;
-}
-
-function myInstanceof3(obj, constructor) {
-    const prototype = constructor.prototype;
     let proto = Object.getPrototypeOf(obj);
+    const prototype = constructor.prototype;
 
-    while (proto !== null) {
+    while (proto) {
         if (proto === prototype) {
             return true;
         }
         proto = Object.getPrototypeOf(proto);
     }
-
     return false;
 }
 

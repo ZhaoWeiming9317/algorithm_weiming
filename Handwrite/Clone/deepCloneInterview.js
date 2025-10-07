@@ -38,8 +38,8 @@ function deepClone(target, map = new WeakMap()) {
     return clone;
 }
 
-function myDeepClone(target, map = new WeakMap()) {
-    if (target !== null || typeof target !== 'object') {
+function myDeepclone(target, map = new WeakMap()) {
+    if (target === null || typeof target !== 'object') {
         return target;
     }
 
@@ -50,20 +50,21 @@ function myDeepClone(target, map = new WeakMap()) {
     if (Array.isArray(target)) {
         const clone = [];
         map.set(target, clone);
-        target.forEach((item, idx) => {
-            clone[idx] = myDeepClone(item, map);
+        target.forEach((item, index) => {
+            clone[index] = myDeepclone(item, map);
         });
         return clone;
     }
 
     const clone = {};
     map.set(target, clone);
-    Reflect.ownKeys(target).forEach((key) => {
-        clone[key] = myDeepClone(target[key], map);
-    });
+
+    Reflect.ownKeys(target).forEach(key => {
+        clone[key] = myDeepclone(target[key], map)
+    })
+
     return clone;
 }
-
 // 测试用例
 function test() {
     // 1. 基础测试

@@ -228,7 +228,7 @@ function diff(oldVTree, newVTree) {
 ## 3. 面试总结
 
 ### 核心要点（一句话总结）：
-"React 的 Diff 算法通过三个层面的优化（树层面的分层比较、组件层面的类型判断、元素层面的 key 优化）实现了 O(n) 的时间复杂度，其中 Tree Diff 通过分层比较避免了跨层级比较，Component Diff 通过类型判断避免了不必要的深度比较，Element Diff 通过 key 优化实现了对同层级元素的最小化操作。"
+"React 的 Diff 算法通过三个层面的优化（树层面的分层比较、组件层面的类型判断、元素层面的 key 优化）实现了 O(n) 的时间复杂度，其中 Tree Diff 避免了跨层级比较，Component Diff 通过类型判断避免了不必要的深度比较，Element Diff 通过 key 优化实现了对同层级元素的最小化操作。"
 
 ### 面试回答思路：
 1. 先说明 Diff 算法的目的：优化 Virtual DOM 的比较过程
