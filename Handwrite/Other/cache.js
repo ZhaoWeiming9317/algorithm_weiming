@@ -27,6 +27,28 @@ function cache(fn) {
   };
 }
 
+/**
+ * 封装一个纯函数的cache，例如
+fn是一个纯函数，
+let fn2 = catche(fn)；
+fn2(1)；
+fn2(1)；// 第二次执行可以直接读取缓存
+ */
+function cacheFn(fn) {
+  const cacheMap = new Map();
+
+  return function(...args) {
+    const key = JSON.stringify(args);
+
+    if (cacheMap.has(key)) {
+      return cacheMap.get(key);
+    }
+    const result = fn.apply(this, args);
+    cacheMap.set(key, result);
+    return result;
+  }
+}
+
 // 方案2: 优化版 - 支持单参数快速查找
 function cacheOptimized(fn) {
   const cacheMap = new Map();
