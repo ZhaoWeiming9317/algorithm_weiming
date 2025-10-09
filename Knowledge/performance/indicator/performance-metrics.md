@@ -505,7 +505,74 @@ module.exports = {
 4. 使用 `font-display: optional` 避免字体闪烁
 5. 使用 `transform` 做动画，避免 `top/left`
 
-### Q4: 如何监控性能指标？
+### Q4: 如何优化 FID/INP？⭐⭐⭐
+
+**答**：
+
+**核心**：减少主线程阻塞，让交互快速响应。
+
+#### 关键优化手段：
+
+**1. 代码分割 + 懒加载**
+```javascript
+// React 懒加载
+const Heavy = lazy(() => import('./Heavy'));
+
+// 动态导入
+const module = await import('./module');
+```
+
+**2. 使用 React 18 并发特性**
+```javascript
+// startTransition：标记非紧急更新
+import { startTransition } from 'react';
+
+setInputValue(value); // 紧急：立即更新输入框
+startTransition(() => {
+  setSearchResults(results); // 非紧急：可中断
+});
+
+// useDeferredValue：延迟更新
+const deferredQuery = useDeferredValue(query);
+```
+
+**3. Web Worker 处理耗时任务**
+```javascript
+const worker = new Worker('worker.js');
+worker.postMessage(data);
+worker.onmessage = (e) => handleResult(e.data);
+```
+
+**4. 防抖/节流**
+```javascript
+// 搜索防抖
+const search = debounce((query) => fetchResults(query), 300);
+
+// 滚动节流
+const handleScroll = throttle(() => updateUI(), 100);
+```
+
+**5. 虚拟列表**
+```javascript
+// react-window
+<FixedSizeList height={600} itemCount={1000} itemSize={50}>
+  {({ index, style }) => <div style={style}>{items[index]}</div>}
+</FixedSizeList>
+```
+
+**6. 延迟加载第三方脚本**
+```html
+<script src="analytics.js" defer></script>
+```
+
+**记忆口诀**：
+- **拆**：代码分割
+- **让**：React Fiber 可中断渲染
+- **移**：Web Worker 移出主线程
+- **缓**：防抖节流
+- **虚**：虚拟列表
+
+### Q5: 如何监控性能指标？
 
 **答**：
 ```javascript

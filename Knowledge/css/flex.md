@@ -487,6 +487,560 @@
 
 ---
 
+## Q9: Flex 如何重新排序？
+
+**答案：使用 flex-direction 反转或 order 属性精确排序**
+
+### 方法一：flex-direction 反转
+
+#### row-reverse（水平反转）
+```css
+.container {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+/* HTML: <div>1</div><div>2</div><div>3</div> */
+/* 显示: 3 2 1 */
+```
+
+#### column-reverse（垂直反转）
+```css
+.container {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+/* HTML: <div>1</div><div>2</div><div>3</div> */
+/* 显示: 3
+         2
+         1 */
+```
+
+#### 实际应用：移动端导航
+```css
+.nav {
+  display: flex;
+  flex-direction: row;
+}
+
+/* 移动端：logo 在右边 */
+@media (max-width: 768px) {
+  .nav {
+    flex-direction: row-reverse;
+  }
+}
+```
+
+### 方法二：order 属性（推荐 ⭐⭐⭐⭐⭐）
+
+#### 基本用法
+```css
+.item {
+  order: 0; /* 默认值 */
+}
+
+/* 数值越小，越靠前 */
+.item1 { order: 3; } /* 第三个显示 */
+.item2 { order: 1; } /* 第一个显示 */
+.item3 { order: 2; } /* 第二个显示 */
+
+/* HTML: <div class="item1">1</div>
+         <div class="item2">2</div>
+         <div class="item3">3</div> */
+/* 显示: 2 3 1 */
+```
+
+#### order 的特点
+- **默认值**：0
+- **可以为负数**：order: -1 会排在最前面
+- **相同 order**：按 HTML 顺序排列
+- **不改变 DOM**：只改变视觉顺序，不改变 HTML 结构
+
+```css
+.item1 { order: 0; }  /* 默认 */
+.item2 { order: -1; } /* 最前面 */
+.item3 { order: 1; }  /* 最后面 */
+.item4 { order: 0; }  /* 和 item1 一样，按 HTML 顺序 */
+
+/* 显示顺序: item2 → item1 → item4 → item3 */
+```
+
+### 实际应用场景
+
+#### 场景1：响应式布局调整顺序
+```css
+/* 桌面端：logo | nav | search */
+.header {
+  display: flex;
+}
+
+.logo { order: 1; }
+.nav { order: 2; }
+.search { order: 3; }
+
+/* 移动端：logo | search | nav */
+@media (max-width: 768px) {
+  .logo { order: 1; }
+  .search { order: 2; }
+  .nav { order: 3; }
+}
+```
+
+#### 场景2：重要内容优先显示
+```css
+/* HTML 顺序：广告 | 内容 | 侧边栏 */
+/* 移动端：内容优先 */
+
+.ad { order: 3; }
+.content { order: 1; }
+.sidebar { order: 2; }
+
+/* 显示顺序: 内容 | 侧边栏 | 广告 */
+```
+
+#### 场景3：动态排序
+```javascript
+// JavaScript 动态改变顺序
+const items = document.querySelectorAll('.item');
+
+function sortByPriority() {
+  items.forEach((item, index) => {
+    const priority = item.dataset.priority;
+    item.style.order = priority;
+  });
+}
+
+// HTML
+// <div class="item" data-priority="2">Low</div>
+// <div class="item" data-priority="0">High</div>
+// <div class="item" data-priority="1">Medium</div>
+
+// 调用后显示: High | Medium | Low
+```
+
+### 完整示例：卡片排序
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .card {
+    flex: 1 1 200px;
+    padding: 20px;
+    background: #f0f0f0;
+    border-radius: 8px;
+  }
+
+  /* 默认顺序 */
+  .card:nth-child(1) { order: 1; }
+  .card:nth-child(2) { order: 2; }
+  .card:nth-child(3) { order: 3; }
+
+  /* 移动端：重要的卡片优先 */
+  @media (max-width: 768px) {
+    .card.important { order: -1; }
+    .card.normal { order: 0; }
+    .card.low { order: 1; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="card normal">卡片 1</div>
+    <div class="card important">重要卡片</div>
+    <div class="card low">次要卡片</div>
+  </div>
+</body>
+</html>
+```
+
+### order vs flex-direction 对比
+
+| 特性 | order | flex-direction: reverse |
+|-----|-------|------------------------|
+| **灵活性** | 可以精确控制每个项目 | 只能整体反转 |
+| **复杂度** | 需要为每个项目设置 | 一行代码搞定 |
+| **适用场景** | 复杂排序需求 | 简单反转 |
+| **性能** | 稍差（需要计算） | 更好 |
+| **可读性** | 需要注释说明 | 一目了然 |
+
+### 注意事项
+
+#### 1. 无障碍访问问题
+```css
+/* ⚠️ 注意：order 改变视觉顺序，但不改变 Tab 键顺序 */
+.item1 { order: 2; }
+.item2 { order: 1; }
+
+/* Tab 键顺序仍然是：item1 → item2 */
+/* 视觉顺序是：item2 → item1 */
+
+/* 解决方案：使用 tabindex */
+```
+
+```html
+<div class="item1" tabindex="2">Item 1</div>
+<div class="item2" tabindex="1">Item 2</div>
+```
+
+#### 2. 不要过度使用
+```css
+/* ❌ 不推荐：过度使用 order */
+.item1 { order: 5; }
+.item2 { order: 3; }
+.item3 { order: 7; }
+.item4 { order: 1; }
+/* 难以维护，不如直接调整 HTML 顺序 */
+
+/* ✅ 推荐：只在必要时使用 */
+.featured { order: -1; } /* 置顶特色内容 */
+```
+
+---
+
+## Q10: position: fixed 或 absolute 的元素能否使用 Flex 布局？
+
+**答案：不能作为 Flex 项目，但可以作为 Flex 容器**
+
+### 核心原理
+
+```css
+/* Flex 项目的条件：
+   1. 父元素必须是 display: flex
+   2. 子元素必须在正常文档流中
+   3. position: fixed 和 absolute 会脱离文档流
+*/
+```
+
+### 场景一：fixed/absolute 不能作为 Flex 项目
+
+```html
+<style>
+  .container {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .item1 { background: red; }
+  .item2 { 
+    background: blue;
+    position: fixed; /* ❌ 脱离文档流，不受 Flex 控制 */
+    top: 0;
+    left: 0;
+  }
+  .item3 { background: green; }
+</style>
+
+<div class="container">
+  <div class="item1">Item 1</div>
+  <div class="item2">Item 2 (Fixed)</div>
+  <div class="item3">Item 3</div>
+</div>
+
+<!-- 结果：
+  - item1 和 item3 按 Flex 布局
+  - item2 固定在左上角，不参与 Flex 布局
+  - justify-content 只对 item1 和 item3 生效
+-->
+```
+
+### 场景二：fixed/absolute 可以作为 Flex 容器
+
+```html
+<style>
+  .fixed-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100vh;
+    
+    /* ✅ 可以使用 Flex 布局 */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+    background: white;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+  }
+
+  .fixed-container .item {
+    padding: 10px;
+    background: #f0f0f0;
+  }
+</style>
+
+<div class="fixed-container">
+  <div class="item">Header</div>
+  <div class="item">Content</div>
+  <div class="item">Footer</div>
+</div>
+
+<!-- 结果：
+  - fixed-container 固定在右侧
+  - 内部的 item 按 Flex 布局排列
+-->
+```
+
+### 实际应用：固定侧边栏
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
+
+  /* 固定侧边栏 */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+    background: #2c3e50;
+    
+    /* ✅ 作为 Flex 容器 */
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-header {
+    padding: 20px;
+    background: #34495e;
+    color: white;
+  }
+
+  .sidebar-nav {
+    flex: 1; /* 占据剩余空间 */
+    overflow-y: auto;
+    padding: 10px;
+  }
+
+  .sidebar-footer {
+    padding: 20px;
+    background: #34495e;
+    color: white;
+  }
+
+  .nav-item {
+    padding: 10px;
+    color: white;
+    margin-bottom: 5px;
+    border-radius: 4px;
+  }
+
+  .nav-item:hover {
+    background: #34495e;
+  }
+
+  /* 主内容区 */
+  .main-content {
+    margin-left: 250px;
+    padding: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>Logo</h2>
+    </div>
+    
+    <div class="sidebar-nav">
+      <div class="nav-item">Dashboard</div>
+      <div class="nav-item">Users</div>
+      <div class="nav-item">Settings</div>
+      <!-- 更多导航项 -->
+    </div>
+    
+    <div class="sidebar-footer">
+      <p>© 2024</p>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <h1>Main Content</h1>
+    <p>Content goes here...</p>
+  </div>
+</body>
+</html>
+```
+
+### 实际应用：固定的模态框
+
+```html
+<style>
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    
+    /* ✅ 使用 Flex 居中模态框 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .modal {
+    width: 500px;
+    max-width: 90%;
+    background: white;
+    border-radius: 8px;
+    
+    /* ✅ 模态框内部也用 Flex */
+    display: flex;
+    flex-direction: column;
+    max-height: 80vh;
+  }
+
+  .modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .modal-body {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  .modal-footer {
+    padding: 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+</style>
+
+<div class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Modal Title</h2>
+    </div>
+    <div class="modal-body">
+      <p>Modal content...</p>
+    </div>
+    <div class="modal-footer">
+      <button>Cancel</button>
+      <button>Confirm</button>
+    </div>
+  </div>
+</div>
+```
+
+### 实际应用：固定的导航栏
+
+```html
+<style>
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 100;
+    
+    /* ✅ 使用 Flex 布局 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+  }
+
+  .navbar-logo {
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  .navbar-menu {
+    display: flex;
+    gap: 20px;
+  }
+
+  .navbar-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  /* 主内容需要留出导航栏高度 */
+  .content {
+    margin-top: 60px;
+    padding: 20px;
+  }
+</style>
+
+<nav class="navbar">
+  <div class="navbar-logo">Logo</div>
+  <div class="navbar-menu">
+    <a href="#">Home</a>
+    <a href="#">About</a>
+    <a href="#">Contact</a>
+  </div>
+  <div class="navbar-actions">
+    <button>Login</button>
+    <button>Sign Up</button>
+  </div>
+</nav>
+
+<div class="content">
+  <h1>Page Content</h1>
+</div>
+```
+
+### 总结对比
+
+| 定位方式 | 作为 Flex 项目 | 作为 Flex 容器 |
+|---------|---------------|---------------|
+| **static（默认）** | ✅ 可以 | ✅ 可以 |
+| **relative** | ✅ 可以 | ✅ 可以 |
+| **absolute** | ❌ 不可以（脱离文档流） | ✅ 可以 |
+| **fixed** | ❌ 不可以（脱离文档流） | ✅ 可以 |
+| **sticky** | ✅ 可以 | ✅ 可以 |
+
+### 关键要点
+
+1. **fixed/absolute 脱离文档流**
+   - 不再是父元素的 Flex 项目
+   - 不受 justify-content、align-items 等影响
+   - 不占据 Flex 容器的空间
+
+2. **fixed/absolute 可以是 Flex 容器**
+   - 内部子元素可以使用 Flex 布局
+   - 常用于固定侧边栏、模态框、导航栏
+
+3. **sticky 是特殊情况**
+   - 在未触发粘性定位时，仍在文档流中
+   - 可以作为 Flex 项目
+   - 触发粘性定位后，表现类似 fixed
+
+```css
+.sticky-item {
+  position: sticky;
+  top: 0;
+  /* ✅ 可以作为 Flex 项目 */
+}
+```
+
+---
+
 ## 总结
 
 ### Flexbox 核心概念
@@ -494,6 +1048,8 @@
 2. **项目属性**：flex、align-self、order
 3. **轴的概念**：主轴和交叉轴
 4. **响应式**：结合媒体查询实现
+5. **排序**：flex-direction 反转或 order 精确排序
+6. **定位**：fixed/absolute 不能作为 Flex 项目，但可以作为 Flex 容器
 
 ### 最佳实践
 ```css
@@ -509,6 +1065,18 @@
 .item {
   flex: 1 1 300px;
   max-width: 500px;
+}
+
+/* 排序 */
+.featured {
+  order: -1; /* 置顶 */
+}
+
+/* 固定定位 + Flex */
+.fixed-sidebar {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
 }
 ```
 

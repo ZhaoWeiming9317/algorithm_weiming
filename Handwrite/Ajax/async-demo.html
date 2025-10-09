@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>AJAX 异步 vs 同步 演示</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    
+    .demo-section {
+      margin: 30px 0;
+      padding: 20px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+    }
+    
+    .demo-section h2 {
+      margin-top: 0;
+      color: #333;
+    }
+    
+    button {
+      padding: 10px 20px;
+      margin: 10px 10px 10px 0;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      transition: all 0.3s;
+    }
+    
+    .sync-btn {
+      background-color: #ff4444;
+      color: white;
+    }
+    
+    .sync-btn:hover {
+      background-color: #cc0000;
+    }
+    
+    .async-btn {
+      background-color: #44bb44;
+      color: white;
+    }
+    
+    .async-btn:hover {
+      background-color: #228822;
+    }
+    
+    .test-btn {
+      background-color: #4444ff;
+      color: white;
+    }
+    
+    .test-btn:hover {
+      background-color: #0000cc;
+    }
+    
+    #log {
+      background-color: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 15px;
+      margin-top: 20px;
+      min-height: 150px;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    .log-entry {
+      margin: 5px 0;
+      padding: 3px;
+    }
+    
+    .log-start { color: #0066cc; font-weight: bold; }
+    .log-send { color: #666; }
+    .log-complete { color: #00aa00; font-weight: bold; }
+    .log-blocked { color: #ff0000; font-weight: bold; }
+    .log-time { color: #999; font-size: 12px; }
+    
+    .warning {
+      background-color: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 5px;
+      padding: 10px;
+      margin: 10px 0;
+      color: #856404;
+    }
+    
+    .info {
+      background-color: #d1ecf1;
+      border: 1px solid #17a2b8;
+      border-radius: 5px;
+      padding: 10px;
+      margin: 10px 0;
+      color: #0c5460;
+    }
+    
+    #counter {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 AJAX 异步 vs 同步 演示</h1>
+  
+  <!-- 演示1：基本区别 -->
+  <div class="demo-section">
+    <h2>演示1：同步 vs 异步</h2>
+    <div class="warning">
+      ⚠️ 点击"同步请求"会让页面卡住 3 秒！期间无法操作页面。
+    </div>
+    <button class="sync-btn" onclick="syncDemo()">同步请求（会卡死）</button>
+    <button class="async-btn" onclick="asyncDemo()">异步请求（正常）</button>
+    <button class="test-btn" onclick="testInteraction()">点击测试页面是否响应</button>
+  </div>
+  
+  <!-- 演示2：多个请求对比 -->
+  <div class="demo-section">
+    <h2>演示2：多个请求的执行时间</h2>
+    <div class="info">
+      💡 同步请求串行执行（6秒），异步请求并发执行（3秒）
+    </div>
+    <button class="sync-btn" onclick="multipleSync()">同步发送3个请求</button>
+    <button class="async-btn" onclick="multipleAsync()">异步发送3个请求</button>
+  </div>
+  
+  <!-- 演示3：计数器测试 -->
+  <div class="demo-section">
+    <h2>演示3：页面冻结测试</h2>
+    <div class="info">
+      💡 同步请求时，计数器会停止；异步请求时，计数器继续运行
+    </div>
+    <button class="test-btn" onclick="startCounter()">启动计数器</button>
+    <button class="test-btn" onclick="stopCounter()">停止计数器</button>
+    <div id="counter">0</div>
+    <button class="sync-btn" onclick="syncWithCounter()">同步请求（计数器会停）</button>
+    <button class="async-btn" onclick="asyncWithCounter()">异步请求（计数器继续）</button>
+  </div>
+  
+  <!-- 日志区域 -->
+  <div class="demo-section">
+    <h2>📋 执行日志</h2>
+    <button class="test-btn" onclick="clearLog()">清空日志</button>
+    <div id="log"></div>
+  </div>
+
+  <script>
+    let startTime = Date.now();
+    let counterInterval = null;
+    let counterValue = 0;
+    
+    // 日志函数
+    function log(message, type = 'info') {
+      const time = ((Date.now() - startTime) / 1000).toFixed(2);
+      const logDiv = document.getElementById('log');
+      const entry = document.createElement('div');
+      entry.className = `log-entry log-${type}`;
+      entry.innerHTML = `<span class="log-time">[${time}s]</span> ${message}`;
+      logDiv.appendChild(entry);
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+    
+    function clearLog() {
+      document.getElementById('log').innerHTML = '';
+      startTime = Date.now();
+    }
+    
+    // 模拟延迟（用于演示，实际会阻塞）
+    function sleep(ms) {
+      const start = Date.now();
+      while (Date.now() - start < ms) {
+        // 空循环，阻塞主线程
+      }
+    }
+    
+    // ========== 演示1：基本区别 ==========
+    
+    // 同步请求（会卡死页面）
+    function syncDemo() {
+      log('🚀 开始同步请求', 'start');
+      log('⚠️  注意：页面即将冻结 3 秒！', 'blocked');
+      
+      // 模拟同步请求（实际中是 xhr.open(url, false)）
+      sleep(3000);
+      
+      log('✅ 同步请求完成', 'complete');
+      log('💡 期间无法操作页面！', 'blocked');
+    }
+    
+    // 异步请求（正常）
+    function asyncDemo() {
+      log('🚀 开始异步请求', 'start');
+      log('✨ 立即继续执行，不等待', 'send');
+      
+      // 模拟异步请求
+      setTimeout(() => {
+        log('✅ 异步请求完成（3秒后）', 'complete');
+      }, 3000);
+      
+      log('💡 可以继续操作页面！', 'send');
+    }
+    
+    // 测试页面响应
+    function testInteraction() {
+      log('👆 页面可以点击！', 'send');
+    }
+    
+    // ========== 演示2：多个请求对比 ==========
+    
+    // 同步发送多个请求
+    function multipleSync() {
+      const start = Date.now();
+      log('🚀 开始发送 3 个同步请求', 'start');
+      
+      log('📡 发送请求 1...', 'send');
+      sleep(2000);
+      log('✅ 请求 1 完成', 'complete');
+      
+      log('📡 发送请求 2...', 'send');
+      sleep(2000);
+      log('✅ 请求 2 完成', 'complete');
+      
+      log('📡 发送请求 3...', 'send');
+      sleep(2000);
+      log('✅ 请求 3 完成', 'complete');
+      
+      const duration = ((Date.now() - start) / 1000).toFixed(2);
+      log(`⏱️  总耗时：${duration} 秒（串行执行）`, 'complete');
+    }
+    
+    // 异步发送多个请求
+    function multipleAsync() {
+      const start = Date.now();
+      log('🚀 开始发送 3 个异步请求', 'start');
+      
+      let completed = 0;
+      
+      // 请求 1
+      log('📡 发送请求 1...', 'send');
+      setTimeout(() => {
+        log('✅ 请求 1 完成', 'complete');
+        completed++;
+        if (completed === 3) {
+          const duration = ((Date.now() - start) / 1000).toFixed(2);
+          log(`⏱️  总耗时：${duration} 秒（并发执行）`, 'complete');
+        }
+      }, 2000);
+      
+      // 请求 2
+      log('📡 发送请求 2...', 'send');
+      setTimeout(() => {
+        log('✅ 请求 2 完成', 'complete');
+        completed++;
+        if (completed === 3) {
+          const duration = ((Date.now() - start) / 1000).toFixed(2);
+          log(`⏱️  总耗时：${duration} 秒（并发执行）`, 'complete');
+        }
+      }, 2000);
+      
+      // 请求 3
+      log('📡 发送请求 3...', 'send');
+      setTimeout(() => {
+        log('✅ 请求 3 完成', 'complete');
+        completed++;
+        if (completed === 3) {
+          const duration = ((Date.now() - start) / 1000).toFixed(2);
+          log(`⏱️  总耗时：${duration} 秒（并发执行）`, 'complete');
+        }
+      }, 2000);
+      
+      log('💡 3 个请求同时发送，不互相等待', 'send');
+    }
+    
+    // ========== 演示3：计数器测试 ==========
+    
+    function startCounter() {
+      if (counterInterval) return;
+      counterValue = 0;
+      counterInterval = setInterval(() => {
+        counterValue++;
+        document.getElementById('counter').textContent = counterValue;
+      }, 100);
+      log('⏱️  计数器启动', 'start');
+    }
+    
+    function stopCounter() {
+      if (counterInterval) {
+        clearInterval(counterInterval);
+        counterInterval = null;
+        log('⏸️  计数器停止', 'send');
+      }
+    }
+    
+    function syncWithCounter() {
+      log('🚀 开始同步请求（观察计数器）', 'start');
+      log('⚠️  计数器即将停止 3 秒！', 'blocked');
+      
+      sleep(3000);
+      
+      log('✅ 同步请求完成', 'complete');
+      log('💡 计数器在请求期间完全停止！', 'blocked');
+    }
+    
+    function asyncWithCounter() {
+      log('🚀 开始异步请求（观察计数器）', 'start');
+      log('✨ 计数器继续运行', 'send');
+      
+      setTimeout(() => {
+        log('✅ 异步请求完成', 'complete');
+        log('💡 计数器在请求期间正常运行！', 'complete');
+      }, 3000);
+    }
+    
+    // 初始化
+    log('📝 页面加载完成，可以开始演示', 'start');
+  </script>
+</body>
+</html>

@@ -45,6 +45,18 @@ function instanceof3(obj, constructor) {
     return false;
 }
 
+function instanceof4(obj, constructor) {
+    // 首先判断 obj 的值是否是对象
+    if (obj === null || typeof obj !== 'object') {
+        return false;
+    }
+
+    // 然后获取obj隐式原型
+    const proto = Object.getPrototypeOf(obj); // 约等于 __proto__
+    // 获取构造函数上面的原型
+    const prototype = constructor
+}
+
 // 测试用例
 function test() {
     // 1. 基本测试

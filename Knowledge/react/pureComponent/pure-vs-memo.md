@@ -187,12 +187,12 @@ const ButtonWithCallback = React.memo(function(props) {
 
 ### 4.1 使用场景对比
 
-| 特性 | PureComponent | React.memo |
-|------|--------------|------------|
-| 组件类型 | 类组件 | 函数组件 |
-| 比较范围 | props 和 state | 只比较 props |
-| 自定义比较 | 需要继承重写 | 直接传入比较函数 |
-| Hooks支持 | 不支持 | 完全支持 |
+| 特性       | PureComponent | React.memo     |
+|-----------|---------------|----------------|
+| 组件类型   | 类组件         | 函数组件         |
+| 比较范围   | props 和 state| 只比较 props     |
+| 自定义比较 | 需要继承重写    | 直接传入比较函数   |
+| Hooks支持 | 不支持         | 完全支持         |
 
 ### 4.2 选择建议
 

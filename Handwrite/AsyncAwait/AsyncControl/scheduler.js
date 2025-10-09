@@ -10,7 +10,7 @@ class Scheduler {
   }
 
     add(task) {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             this.queue.push(() => task().then(resolve, reject));
             this.run();
         });
@@ -30,30 +30,35 @@ class Scheduler {
 
 class Scheduler {
   constructor(limit) {
-    this.limit = limit;
-    this.count = 0;
-    this.queue = [];
+    this.limit = limit; // 最大执行任务数量
+    this.queue = []; // 任务队列
+    this.count = 0; // 当前执行任务数量
   }
-
-  add(task) {
-    return new Promise((resolve, reject) => {
-      this.queue.push(() => task().then(resolve, reject));
-      this.run();
-    });
+  
+  add(fn) {
+    return new Promise().then((resolve, reject) => {
+        this.queue.push(() => Promise.resolve(fn).then(resolve, reject));
+        this.run();
+    })
   }
 
   run() {
-    if (this.limit <= this.count) return;
-    if (this.queue.length === 0) return;
+    if (this.limit <= this.count) {
+      return;
+    }
+    if (this.queue.length === 0) {
+      return;
+    }
 
-    const task = this.queue.shift();
+    const cb = this.queue.shift();
     this.count++;
-    task.finally(() => {
+    cb.finally(() => {
       this.count--;
       this.run();
     });
   }
 }
+
 /**
  * 使用示例：控制并发执行多个任务
  */

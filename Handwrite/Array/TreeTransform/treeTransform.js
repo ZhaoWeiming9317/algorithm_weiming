@@ -30,6 +30,22 @@ function arrayToTreeRecursive(flatArray, parentId = -1) {
     return result;
 }
 
+// 方法1 -> 直接递归
+function arrayToTree(flatArray, parentId = -1) {
+    const result = [];
+
+    for (const item of flatArray) {
+        if (item.parentId === parentId) {
+            const children = arrayToTree(flatArray, item.id);
+            result.push({
+                ...item,
+                children
+            })
+        }
+    }
+    return result;
+}   
+
 /**
  * 方法二：Map优化实现（时间复杂度 O(n)，空间复杂度 O(n)）
  * @param {Array} flatArray - 扁平数组
@@ -69,6 +85,30 @@ function arrayToTreeOptimized(flatArray, rootParentId = -1) {
     return result;
 }
 
+function arrayToTree(flatArray) {
+    const map = new Map();
+    const result = [];
+
+    for (let item of flatArray) {
+        map.set(item.id, item);
+    }
+
+    for (let item of flatArray) {
+        const parentId = item.parentId;
+
+        if (parentId === -1) {
+            result.push(item);
+            continue;
+        }
+
+        if (map.has(item.id)) {
+            const parent = map.get(item.parentId);
+            parent.children.push(item);
+        }
+    }
+
+    return result;
+}
 /**
  * 方法三：一次遍历实现（时间复杂度 O(n)，空间复杂度 O(n)）
  * @param {Array} flatArray - 扁平数组

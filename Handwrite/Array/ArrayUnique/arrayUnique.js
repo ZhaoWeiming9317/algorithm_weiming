@@ -48,7 +48,7 @@ function uniqueBySet(arr) {
  * 
  * 优势：
  * - 性能好，时间复杂度 O(n)
- * - 可以处理对象去重
+ * - 可以处理对象去重 => 这个是重点
  * - 保持元素顺序
  * - 可以处理各种数据类型
  * 
@@ -68,6 +68,18 @@ function uniqueByMap(arr) {
     return true;
   });
 }
+
+function uniqueByMap2(arr) {
+  const map = new Map();
+  return arr.filter(item => {
+    if (map.has(item)) {
+      return false;
+    }
+    map.set(item, true);
+    return true;
+  });
+}
+
 
 /**
  * 方法3：使用对象属性去重（推荐⭐⭐⭐）

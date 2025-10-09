@@ -17,9 +17,30 @@ function simpleAjax(url, callback) {
   };
   
   // 3. 打开连接
-  xhr.open('GET', url, true); // true 表示异步
+  // xhr.open(method, url, async, user, password)
+  // 第三个参数 async：
+  //   - true（默认）：异步请求，不阻塞页面，推荐使用 ✅
+  //   - false：同步请求，会阻塞页面，已被弃用 ❌
+  xhr.open('GET', url, true);
   
   // 4. 发送请求
+  // 异步请求：send() 后立即继续执行，不等待响应
+  // 响应返回时，会触发 onreadystatechange 回调
+  xhr.send();
+}
+
+function simpleAjax2(url, callback) {
+  const xhr = new XMLHttpRequest();
+
+  xhr.onreadystatechange = function() {
+    // readState === 4 表示完成
+    // status === 200 表示成功
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      callback(null, xhr.responseText);
+    }
+  }
+
+  xhr.open('GET', url, true);
   xhr.send();
 }
 
@@ -331,17 +352,113 @@ myAjax('https://api.example.com/data')
 
 
 /**
- * 面试背诵要点：
+ * ========================================
+ * 同步 vs 异步详解（面试重点）
+ * ========================================
+ */
+
+// ❌ 同步请求（不推荐，会卡死页面）
+function syncAjax(url) {
+  const xhr = new XMLHttpRequest();
+  
+  // 第三个参数 false = 同步请求
+  xhr.open('GET', url, false);
+  
+  // send() 后会阻塞，等待响应返回
+  xhr.send();
+  
+  // 这行代码要等请求完成才执行
+  console.log('请求完成');
+  
+  if (xhr.status === 200) {
+    return xhr.responseText;
+  }
+}
+
+// 执行效果：
+// console.log('1');
+// const data = syncAjax('/api/data'); // ⏸️ 卡在这里，等待 3 秒
+// console.log('2'); // 3 秒后才执行
+// 输出：1 -> (等待) -> 请求完成 -> 2
+
+
+// ✅ 异步请求（推荐，不阻塞页面）
+function asyncAjax(url, callback) {
+  const xhr = new XMLHttpRequest();
+  
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      callback(xhr.responseText);
+    }
+  };
+  
+  // 第三个参数 true = 异步请求（默认值）
+  xhr.open('GET', url, true);
+  
+  // send() 后立即返回，不等待
+  xhr.send();
+  
+  // 这行代码立即执行
+  console.log('请求已发送，继续执行');
+}
+
+// 执行效果：
+// console.log('1');
+// asyncAjax('/api/data', data => console.log('3', data));
+// console.log('2'); // 立即执行
+// 输出：1 -> 请求已发送，继续执行 -> 2 -> (3秒后) -> 3 data
+
+
+/**
+ * 关键区别总结：
+ * 
+ * 1. 执行顺序
+ *    - 同步：发送 -> 等待 -> 返回 -> 继续
+ *    - 异步：发送 -> 继续 -> ... -> 回调
+ * 
+ * 2. 页面响应
+ *    - 同步：页面冻结，无法操作 ❌
+ *    - 异步：页面正常，可以操作 ✅
+ * 
+ * 3. 性能
+ *    - 同步：串行执行，耗时累加
+ *    - 异步：并发执行，性能更好
+ * 
+ * 4. 使用建议
+ *    - 同步：几乎不用，即将被浏览器移除
+ *    - 异步：标准做法，所有场景都推荐
+ */
+
+
+/**
+ * ========================================
+ * 面试背诵要点（必背）
+ * ========================================
  * 
  * 1. 创建 XMLHttpRequest 对象
  * 2. 监听 onreadystatechange 事件
  * 3. 判断 readyState === 4 && status === 200
- * 4. 调用 open(method, url, async)
+ * 4. 调用 open(method, url, async)  ← async 默认 true
  * 5. 调用 send(data)
  * 
- * 核心代码（5 步）：
+ * 核心代码（5 行）：
  * const xhr = new XMLHttpRequest();
- * xhr.onreadystatechange = () => { if (xhr.readyState === 4 && xhr.status === 200) { ... } };
- * xhr.open('GET', url, true);
+ * xhr.onreadystatechange = () => { 
+ *   if (xhr.readyState === 4 && xhr.status === 200) { 
+ *     callback(xhr.responseText); 
+ *   } 
+ * };
+ * xhr.open('GET', url, true);  // true = 异步
  * xhr.send();
+ * 
+ * 
+ * 面试问答：
+ * Q: xhr.open() 的第三个参数是什么？
+ * A: async 参数，true 表示异步（推荐），false 表示同步（弃用）
+ * 
+ * Q: 为什么推荐异步？
+ * A: 异步不阻塞页面，用户可以继续操作，性能更好，是标准做法
+ * 
+ * Q: 同步和异步的区别？
+ * A: 同步会等待响应返回，页面冻结；异步立即返回，通过回调处理结果
  */

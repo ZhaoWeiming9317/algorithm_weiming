@@ -641,6 +641,107 @@ function Animation() {
 - React 18：不会，所有场景都会批量处理
 - React 17：取决于场景，事件处理器中会批量，setTimeout 等场景不会
 
+### Q5: 事件处理器究竟是什么？
+
+**A:**
+事件处理器（Event Handler）是指处理用户交互的函数。
+
+**React 事件处理器**：
+```javascript
+function Example() {
+  // ✅ 这些都是事件处理器
+  const handleClick = () => { };      // 点击事件
+  const handleChange = (e) => { };    // 输入事件
+  const handleSubmit = (e) => { };    // 提交事件
+  const handleMouseMove = (e) => { }; // 鼠标移动事件
+  
+  return (
+    <>
+      <button onClick={handleClick}>点击</button>
+      <input onChange={handleChange} />
+      <form onSubmit={handleSubmit}>
+        <button type="submit">提交</button>
+      </form>
+      <div onMouseMove={handleMouseMove}>移动鼠标</div>
+    </>
+  );
+}
+```
+
+**非事件处理器**：
+```javascript
+function Example() {
+  // ❌ 这些不是事件处理器
+  
+  // 1. 定时器回调
+  setTimeout(() => {
+    setState({ count: 1 });
+  }, 1000);
+  
+  // 2. Promise 回调
+  fetch('/api').then(() => {
+    setState({ count: 1 });
+  });
+  
+  // 3. 原生 DOM 事件
+  useEffect(() => {
+    document.addEventListener('click', () => {
+      setState({ count: 1 });
+    });
+  }, []);
+  
+  // 4. 生命周期方法（不是事件处理器，但 React 17 会批量处理）
+  useEffect(() => {
+    setState({ count: 1 });
+  }, []);
+}
+```
+
+**为什么区分事件处理器很重要？**
+- React 17：只在事件处理器中自动批量处理
+- React 18：所有场景都自动批量处理（不再需要区分）
+
+### Q6: React 17 和 React 18 批量处理的区别？
+
+**A:**
+
+| 场景 | React 17 | React 18 |
+|------|----------|----------|
+| onClick、onChange 等 React 事件 | ✅ 批量处理 | ✅ 批量处理 |
+| setTimeout | ❌ 不批量（每次 setState 都 render） | ✅ 批量处理 |
+| Promise.then | ❌ 不批量 | ✅ 批量处理 |
+| 原生 DOM 事件 | ❌ 不批量 | ✅ 批量处理 |
+| async/await | ❌ 不批量 | ✅ 批量处理 |
+
+**示例对比**：
+```javascript
+// React 17
+function Example() {
+  const [count, setCount] = useState(0);
+  
+  const handleClick = () => {
+    setTimeout(() => {
+      setCount(c => c + 1); // render 一次
+      setCount(c => c + 1); // 再 render 一次
+      // 总共 render 2 次
+    }, 0);
+  };
+}
+
+// React 18
+function Example() {
+  const [count, setCount] = useState(0);
+  
+  const handleClick = () => {
+    setTimeout(() => {
+      setCount(c => c + 1);
+      setCount(c => c + 1);
+      // 只 render 1 次（自动批量处理）
+    }, 0);
+  };
+}
+```
+
 ---
 
 ## 10. 最佳实践

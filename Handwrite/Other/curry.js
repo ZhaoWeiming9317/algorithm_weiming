@@ -35,6 +35,14 @@ function simpleCurry2(func) {
   }
 }
 
+function simpleCurry3(func) {
+  return function curried(...args) {
+    return args.length >= func.length ?
+    func(...args) :
+    (...nextArgs) => curried(...args, ...nextArgs);
+  }
+}
+
 // 测试 func.apply vs func(...args) 的区别
 function testThisBinding() {
   const obj = {
