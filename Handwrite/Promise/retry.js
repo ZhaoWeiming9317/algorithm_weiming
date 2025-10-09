@@ -19,22 +19,33 @@ function promiseRetry(fn, maxAttempts = 3, delay = 1000) {
     });
 }
 
+/**
+ * 传入函数
+ * @param {*} fn 函数
+ * @param {*} maxAttempts 最大重试次数
+ * @param {*} delay 延迟时间
+ */
 function promiseRetry2(fn, maxAttempts = 3, delay = 100) {
-    return new Promise((resolve, reject) => {
-        let attempt = 1;
-        const tryFunc = () => {
-            Promise.resolve(fn()).then(resolve).catch((err) => {
-                if (attempt > maxAttempts) {
-                    reject(err);
-                    return;
-                }
-                attempt++;
-                setTimeout(tryFunc, delay);
-            })
+    return new Promise((resolve, rejected) => {
+        let attempts = 1;
+
+        function attempt() {
+            Promise.resolve(fn())
+                .then(resolve)
+                .catch(err => {
+                    if (attempts > maxAttempts) {
+                        rejected(err);
+                        return;
+                    }
+                    attempts++;
+                    setTimeout(attempt, delay);
+                })
         }
-        tryFunc();
-    })
+
+        attempt();
+    });
 }
+
 // 测试用例
 function test() {
     // 测试返回Promise的函数

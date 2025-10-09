@@ -12,6 +12,12 @@ function debounce(func, delay) {
   }
 }
 
+/**
+ * 防抖函数，加上 leading 指标
+ * @param {*} func 
+ * @param {*} delay 
+ * @returns 
+ */
 function debounceLeading(func, delay) {
   let timer;
   let hasExecuted = false;

@@ -64,3 +64,19 @@ function promiseAll4(promises) {
         })
     });
 }
+
+function promiseAll5(promises) {
+    return new Promise((resolve, reject) => {
+        let count = 0;
+        const result = [];
+        promises.forEach((promise, index) => {
+            Promise.resolve(promise).then((res) => {
+                result[index] = res;
+                count++;
+                if (promises.length === result.length) {
+                    resolve(result); 
+                }
+            }).catch(reject)
+        });
+    });
+}

@@ -143,27 +143,28 @@ class MyPromise {
 - 错误处理：catch 是 then 的语法糖
 */
 
-class MyPromise {
+class MyPromise2 {
     constructor(executor) {
-        this.value = undefined;
         this.status = 'pending';
         this.callbacks = [];
+        this.value = undefined;
 
+        // resolve 和 reject 都要在构造函数里面定义好，因为对于用户来说这里面的操作是同步的
         resolve = (value) => {
             if (this.status === 'pending') {
+                this.status = 'fulfilled';
                 this.value = value;
-                this.status = 'fullfilled';
-                this.callbacks.forEach(cb => cb.onFulfilled(value));
+                this.callbacks.forEach((cb) => cb.onFulfilled(value));
             }
         }
 
         reject = (reason) => {
             if (this.status === 'pending') {
-                this.value = reason;
                 this.status = 'rejected';
-                this.callbacks.forEach(cb => cb.onRejected(reason));
+                this.value = reason;
+                this.callbacks.forEach((cb) => cb.onRejected(reason));
             }
-        };
+        }
 
         try {
             executor(resolve, reject);
@@ -173,37 +174,42 @@ class MyPromise {
     }
 
     then(onFulfilled, onRejected) {
-        return new MyPromise((resolve, reject) => {
+        return new MyPromise((resolve, rejected) => {
             const handle = () => {
-                if (this.status === 'fullfilled') {
-                    const result = onFulfilled ? onFulfilled(this.value) : this.value;
-                    resolve(result);
-                } else if (this.status === 'rejected') {
-                    const reason = onRejected ? onRejected(this.value) : this.value;
-                    onRejected ? resolve(reason) : reject(reason);
+                try {
+                    if (this.status === 'fulfilled') {
+                        const result = onFulfilled ? onFulfilled(this.value) : this.value;
+                        resolve(result);
+                    } else if (this.status === 'rejected') {
+                        const result = onRejected ? onRejected(this.value) : this.value;
+                        onRejected ? resolve(result) : rejected(result);
+                    }
+                } catch(e) {
+                    rejected(e);
                 }
             }
 
+            // 这里用一个 callbacks 表
             if (this.status === 'pending') {
                 this.callbacks.push({
                     onFulfilled: handle,
-                    onRejected: handle,
+                    onRejected: handle
                 })
             } else {
                 handle();
             }
-        })
+        });
     }
 
     catch(onRejected) {
         return this.then(null, onRejected);
     }
 
-    static resolve(value) {
-        return new MyPromise((resolve) => resolve(value));
+    static resolve(fn) {
+        return new MyPromise((resolve) => resolve(fn));
     }
 
-    static reject(reason) {
-        return new MyPromise((_, reject) => reject(reason));
+    static rejected(fn) {
+        return new MyPromise((_, rejected) => rejected(fn));
     }
 }

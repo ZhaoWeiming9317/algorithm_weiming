@@ -9,16 +9,20 @@ function promiseAllSettled(promises) {
     );
 }
 
-// 更详细的解释版本
-function promiseMyAllSettled(promises) {
+function promiseAllSettledMy(promises) {
+    // 1. 用 Promise all 执行全部的 promises
     return Promise.all(
+        // 内部是一个 promise 数组，因为 promise all 内部需要一个 promise 数组  
         promises.map(promise => {
+            // 在这里再 return 一个 promise, 其中返回的值 then 和 catch 都是需要包装
             return Promise.resolve(promise)
-                .then(value => ({ status: 'fulfilled', value }))
-                .catch(reason => ({ status: 'rejected', reason }))
+                .then(value => ({ status: 'fulfilled',  value }))
+                .catch(reason => ({ status: 'rejected', reason}))
         })
     )
 }
+
+
 
 // 测试 - 演示你的困惑点
 console.log('=== 演示 .then() 返回的是什么 ===');
