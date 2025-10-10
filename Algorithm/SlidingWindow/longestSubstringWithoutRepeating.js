@@ -1,5 +1,5 @@
 /**
- * 3. 无重复字符的最长子串 (Longest Substring Without Repeating Characters)
+ * 3. 无重复字符的最长子串 (Longest Substring Without Repeating Characters) 
  * 
  * 题目：给定一个字符串 s，请你找出其中不含有重复字符的最长子串的长度。
  * 
@@ -15,27 +15,27 @@
 // 滑动窗口解法
 function lengthOfLongestSubstring(s) {
   if (!s) return 0;
-  
+
   let left = 0;
   let right = 0;
   let maxLen = 0;
   const window = new Set();
-  
+
   while (right < s.length) {
     // 扩大窗口
     const c = s[right];
-    
+
     // 如果字符重复，收缩窗口
     while (window.has(c)) {
       window.delete(s[left]);
       left++;
     }
-    
+
     window.add(c);
     maxLen = Math.max(maxLen, right - left + 1);
     right++;
   }
-  
+
   return maxLen;
 }
 

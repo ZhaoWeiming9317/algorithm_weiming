@@ -16,16 +16,16 @@
 // 动态规划 - Kadane 算法
 function maxSubArray(nums) {
   if (nums.length === 0) return 0;
-  
+
   let maxSum = nums[0]; // 全局最大值
   let currentSum = nums[0]; // 当前子数组和
-  
+
   for (let i = 1; i < nums.length; i++) {
     // 核心思想：要么加入当前元素，要么重新开始
     currentSum = Math.max(nums[i], currentSum + nums[i]);
     maxSum = Math.max(maxSum, currentSum);
   }
-  
+
   return maxSum;
 }
 

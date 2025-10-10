@@ -30,42 +30,42 @@
 // 方法1：判断是否能到达最后一个位置
 function canJump(nums) {
     let maxReach = 0;
-    
+
     for (let i = 0; i <= maxReach && maxReach < nums.length - 1; i++) {
         maxReach = Math.max(maxReach, i + nums[i]);
     }
-    
+
     return maxReach >= nums.length - 1;
 }
 
 // 方法2：返回到达最后一个位置的最小跳跃次数
 function minJumps(nums) {
     if (nums.length <= 1) return 0;
-    
+
     let jumps = 0;
     let currentMax = 0;  // 当前能达到的最远位置
     let nextMax = 0;     // 下一步能达到的最远位置
-    
+
     for (let i = 0; i < nums.length - 1; i++) {
         nextMax = Math.max(nextMax, i + nums[i]);
-        
+
         if (i === currentMax) {
             jumps++;
             currentMax = nextMax;
-            
+
             if (currentMax >= nums.length - 1) {
                 break;
             }
         }
     }
-    
+
     return jumps;
 }
 
 // 方法3：返回所有可能的跳跃路径
 function getAllJumpPaths(nums) {
     const paths = [];
-    
+
     function backtrack(pos, path) {
         if (pos >= nums.length - 1) {
             if (pos === nums.length - 1) {
@@ -73,14 +73,14 @@ function getAllJumpPaths(nums) {
             }
             return;
         }
-        
+
         for (let step = 1; step <= nums[pos]; step++) {
             path.push(pos + step);
             backtrack(pos + step, path);
             path.pop();
         }
     }
-    
+
     backtrack(0, [0]);
     return paths;
 }
@@ -88,7 +88,7 @@ function getAllJumpPaths(nums) {
 // 方法4：返回最优跳跃路径（跳跃次数最少的路径）
 function getOptimalJumpPath(nums) {
     if (nums.length <= 1) return [0];
-    
+
     const n = nums.length;
     const dp = Array(n).fill(Infinity);  // dp[i]表示到达位置i的最小跳跃次数
     const prev = Array(n).fill(-1);      // prev[i]表示到达位置i的前一个位置

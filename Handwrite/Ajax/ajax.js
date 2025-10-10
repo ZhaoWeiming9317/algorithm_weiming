@@ -33,14 +33,13 @@ function simpleAjax2(url, callback) {
   const xhr = new XMLHttpRequest();
 
   xhr.onreadystatechange = function() {
-    // readState === 4 表示完成
-    // status === 200 表示成功
     if (xhr.readyState === 4 && xhr.status === 200) {
       callback(null, xhr.responseText);
     }
   }
-
+  
   xhr.open('GET', url, true);
+
   xhr.send();
 }
 

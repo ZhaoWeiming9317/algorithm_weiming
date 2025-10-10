@@ -18,7 +18,6 @@ export const mergeSort = (arr) => {
                 result.push(right[r]);
                 r++;
             }
-
         }
         return [...result, ...left.slice(l), ...right.slice(r)];
     }

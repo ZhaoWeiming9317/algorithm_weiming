@@ -743,7 +743,6 @@ React 16 = 草稿纸作画
 ### Q6: Fiber 如何实现时间切片？⭐⭐⭐
 
 **答**：
-
 **注意：React 实际上没有使用 `requestIdleCallback`，而是用 `MessageChannel` 实现的！**
 
 **为什么不用 `requestIdleCallback`？**

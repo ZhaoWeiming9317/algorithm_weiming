@@ -50,12 +50,12 @@
 
 **CommonJS vs ES Module**：
 
-| 对比 | CommonJS | ES Module |
+| 对比 | CommonJS  | ES Module |
 |------|----------|-----------|
-| 加载时机 | 运行时 | 编译时 |
+| 加载时机 | 运行时  | 编译时     |
 | 导出 | module.exports | export |
-| 导入 | require() | import |
-| 值类型 | 值拷贝 | 值引用 |
+| 导入 | require() | import    |
+| 值类型 | 值拷贝   | 值引用     |
 
 **require 查找顺序**：
 1. 核心模块（fs、path）

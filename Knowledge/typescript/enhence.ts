@@ -16,6 +16,10 @@ type MyPick<T, K extends keyof T> = {
   [P in K]: T[P];
 };
 
+type MyPick2<T, K extends keyof T> = {
+  [P in K]: T[P];
+}
+
 // 测试
 interface User {
   id: number;
@@ -69,6 +73,10 @@ type MyPartial<T> = {
   [P in keyof T]?: T[P];
 };
 
+type MyPartial2<T> = {
+  [P in keyof T]?: T[P];
+}
+
 // 测试
 type PartialUser = MyPartial<User>;
 // 结果：{ id?: number; name?: string; age?: number; email?: string; }
@@ -88,6 +96,10 @@ const user3: PartialUser = {
 type MyRequired<T> = {
   [P in keyof T]-?: T[P];
 };
+
+type MyRequired2<T> = {
+  [P in keyof T]-?: T[P];
+}
 
 // 测试
 interface PartialPerson {

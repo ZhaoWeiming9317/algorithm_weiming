@@ -18,7 +18,7 @@ export const quickSort = (arr) => {
 
     for (let i = 0; i < arr.length; i++) {
         if (i === pivotIndex) continue; // 跳过基准值
-        
+
         if (arr[i] < pivot) {
             left.push(arr[i]);
         } else {
@@ -60,6 +60,6 @@ export const quickSortInPlace = (arr, left = 0, right = arr.length - 1) => {
     // 递归处理基准值左右两边的子数组
     quickSortInPlace(arr, left, pivotIndex - 1);
     quickSortInPlace(arr, pivotIndex + 1, right);
-    
+
     return arr;
 }

@@ -27,7 +27,7 @@
 export const monotonicStackIncrease = (arr) => {
     const stack = []; // 单调递增栈，存储数组下标
     const result = []; // 存储结果
-    
+
     for (let i = 0; i < arr.length; i++) {
         // 维护单调递增性：当前元素 <= 栈顶元素时，弹出栈顶
         // 注意：<= 还是 < 取决于具体问题的语义要求！
@@ -40,21 +40,21 @@ export const monotonicStackIncrease = (arr) => {
             arr[i] <= arr[stack[stack.length - 1]]  // 小于等于
         ) {
             const index = stack.pop(); // 弹出的元素找到了它的"下一个更小元素"
-            
+
             // 处理被弹出的元素
             // index: 被弹出元素的位置
             // i: 当前元素的位置（也是index右边第一个更小元素的位置）
             // i - index: 两个位置之间的距离/跨度
-            
+
             // 根据具体问题进行处理，例如：
             // result[index] = i - index;  // 记录距离
             // result[index] = i;          // 记录位置
             // result[index] = arr[i];     // 记录值
         }
-        
+
         stack.push(i); // 当前元素入栈，维护单调递增性
     }
-    
+
     return result;
 }
 

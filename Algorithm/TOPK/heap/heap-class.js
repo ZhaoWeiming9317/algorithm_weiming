@@ -29,6 +29,7 @@ class Heap {
     if (this.isEmpty()) {
       throw new Error('Heap is empty');
     }
+
     return this.heap[0];
   }
 
@@ -107,10 +108,10 @@ class Heap {
    */
   heapifyUp(index) {
     let currentIndex = index;
-    
+
     while (currentIndex > 0) {
       const parentIndex = this.getParentIndex(currentIndex);
-      
+
       // 子节点 >= 父节点时停止（最小堆性质）
       if (this.heap[currentIndex] >= this.heap[parentIndex]) {
         break;
@@ -118,7 +119,7 @@ class Heap {
 
       // 交换当前节点和父节点
       this.swap(currentIndex, parentIndex);
-      
+
       // 继续向上调整
       currentIndex = parentIndex;
     }
@@ -131,29 +132,29 @@ class Heap {
   heapifyDown(index) {
     const n = this.heap.length;
     let currentIndex = index;
-    
+
     while (currentIndex < n) {
       let smallest = currentIndex;
       const leftChild = this.getLeftChildIndex(currentIndex);
       const rightChild = this.getRightChildIndex(currentIndex);
-      
+
       // 找到最小的节点（最小堆）
       if (leftChild < n && this.heap[leftChild] < this.heap[smallest]) {
         smallest = leftChild;
       }
-      
+
       if (rightChild < n && this.heap[rightChild] < this.heap[smallest]) {
         smallest = rightChild;
       }
-      
+
       // 如果当前节点已经是最小的，停止调整
       if (smallest === currentIndex) {
         break;
       }
-      
+
       // 交换当前节点和最小节点
       this.swap(currentIndex, smallest);
-      
+
       // 继续向下调整
       currentIndex = smallest;
     }
@@ -189,17 +190,17 @@ function createMaxHeap() {
 
 function testHeap() {
   console.log('=== 堆测试 ===');
-  
+
   // 测试最小堆
   console.log('\n--- 最小堆测试 ---');
   const minHeap = createMinHeap();
-  
+
   minHeap.push(3);
   minHeap.push(1);
   minHeap.push(4);
   minHeap.push(1);
   minHeap.push(5);
-  
+
   console.log('插入 3, 1, 4, 1, 5 后:');
   console.log('堆:', minHeap.toArray());
   console.log('堆顶:', minHeap.peek());
