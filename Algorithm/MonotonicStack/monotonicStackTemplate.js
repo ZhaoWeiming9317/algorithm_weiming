@@ -58,6 +58,24 @@ export const monotonicStackIncrease = (arr) => {
     return result;
 }
 
+export const monotonicStackIncrease2 = (arr) => {
+    const stack = [];
+    const result = [];
+
+    for (let i = 0; i < arr.length; i++) {
+        while (
+            stack.length > 0 &&
+            arr[i] <= arr[stack[stack.length - 1]] // 递增栈是小于等于
+        ) {
+            const index = stack.pop();
+        }
+
+        stack.push(i);
+    }
+
+    return result;
+}
+
 /**
  * 单调递减栈模板
  * 

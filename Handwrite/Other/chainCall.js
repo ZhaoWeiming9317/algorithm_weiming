@@ -24,7 +24,7 @@ class ChainCall {
     }
 
     sleep(time) {
-        // 将sleep任务加入队列
+        // 将sleep任务加入队列, 相当于是 setTimeout(resolve, time) 然后过一段时间才能被执行呢
         this.queue.push(() => new Promise(resolve => setTimeout(resolve, time)));
         // 如果没有在执行，则开始执行
         this.run();
@@ -32,7 +32,7 @@ class ChainCall {
     }
 
     firstSleep(time) {
-        // 将firstSleep任务插入到队列最前面
+        // 将firstSleep任务插入到队列最前面，
         this.queue.unshift(() => new Promise(resolve => setTimeout(resolve, time)));
         this.run();
         return this;

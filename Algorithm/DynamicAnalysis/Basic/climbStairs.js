@@ -70,15 +70,15 @@ function climbStairsOptimized(n) {
 // 方法3：递归
 function climbStairsRecursive(n) {
     const memo = new Array(n + 1).fill(-1);
-    
+
     function climb(i) {
         if (i <= 2) return i;
         if (memo[i] !== -1) return memo[i];
-        
+
         memo[i] = climb(i-1) + climb(i-2);
         return memo[i];
     }
-    
+
     return climb(n);
 }
 

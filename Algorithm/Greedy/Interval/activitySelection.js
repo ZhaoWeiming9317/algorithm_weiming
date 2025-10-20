@@ -35,20 +35,20 @@ class Activity {
 // 方法1：返回最大活动数量
 function maxActivities(activities) {
     if (!activities || activities.length === 0) return 0;
-    
+
     // 按结束时间排序
     activities.sort((a, b) => a.end - b.end);
-    
+
     let count = 1;  // 至少可以参加第一个活动
     let lastEnd = activities[0].end;
-    
+
     for (let i = 1; i < activities.length; i++) {
         if (activities[i].start >= lastEnd) {
             count++;
             lastEnd = activities[i].end;
         }
     }
-    
+
     return count;
 }
 
