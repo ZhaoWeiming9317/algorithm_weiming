@@ -1,62 +1,51 @@
 /**
- * 通用单调栈领域实体。
+ * 单步维护单调性
+ * 适用于在线算法 (Online Algorithm) 或需要手动控制栈的场景 (如 StockSpanner)
  * 
- * 封装了维护单调栈的核心逻辑。
- * 具体的出栈条件和出栈时的操作通过策略模式（strategies）在构造或调用时注入。
+ * @template T
+ * @param {Array<T>} stack - 当前的单调栈 (会被修改)
+ * @param {T} incoming - 新进来的元素
+ * @param {Object} config
+ * @param {(peek: T, incoming: T) => boolean} config.shouldPop - 判断是否出栈
+ * @param {(popped: T, peek: T | null, incoming: T) => void} config.onPop - 出栈回调
  */
-export class MonotonicStack {
-    /**
-     * @param {Object} strategies - 策略对象
-     * @param {function(peekItem, incomingItem): boolean} strategies.shouldPop - 断言函数，用于判断当前栈顶元素是否应该出栈。
-     * @param {function(poppedItem, incomingItem): void} strategies.onPop - 回调函数，在元素出栈时执行。
-     */
-    constructor({ shouldPop, onPop }) {
-        this.stack = [];
-        this.shouldPop = shouldPop;
-        this.onPop = onPop;
+export function maintainMonotonicity(stack, incoming, { shouldPop, onPop }) {
+    while (stack.length > 0 && shouldPop(stack[stack.length - 1], incoming)) {
+        const poppedItem = stack.pop();
+        const peekItem = stack.length > 0 ? stack[stack.length - 1] : null;
+        onPop(poppedItem, peekItem, incoming);
     }
+    stack.push(incoming);
+}
 
-    /**
-     * 处理新元素，保持栈的单调性。
-     * @param {any} item - 要推入栈的新元素。
-     */
-    push(item) {
-        while (this.stack.length > 0 && this.shouldPop(this.peek(), item)) {
-            const poppedItem = this.stack.pop();
-            this.onPop(poppedItem, item);
-        }
-        this.stack.push(item);
-    }
-
-    /**
-     * 批量处理元素
-     * @param {Array} items - 要处理的元素数组
-     */
-    process(items) {
-        items.forEach(item => this.push(item));
-    }
-
-    /**
-     * 返回栈顶元素但不移除它。
-     * @returns {any} 栈顶元素。
-     */
-    peek() {
-        return this.stack[this.stack.length - 1];
-    }
-
-    /**
-     * 返回当前栈的大小。
-     * @returns {number}
-     */
-    size() {
-        return this.stack.length;
-    }
-
-    /**
-     * 检查栈是否为空。
-     * @returns {boolean}
-     */
-    isEmpty() {
-        return this.stack.length === 0;
+/**
+ * 批处理单调栈 (Batch Procesing)
+ * 适用于离线算法 (Offline Algorithm)，一次性处理所有元素
+ * 
+ * @template T
+ * @param {Array<T> | Iterable<T>} elements - 输入元素流
+ * @param {Object} config - 配置同 maintainMonotonicity
+ */
+export function processMonotonicStack(elements, config) {
+    const stack = [];
+    for (const item of elements) {
+        maintainMonotonicity(stack, item, config);
     }
 }
+
+/**
+ * 内置策略集合
+ */
+export const Strategies = {
+    // 寻找右侧第一个更矮的元素 (Next Less Element, <=) -> 对应递增栈
+    NextLessElement: (peek, incoming) => peek >= incoming,
+
+    // 寻找右侧第一个严格更矮的元素 (Next Strictly Less Element, <)
+    NextStrictlyLessElement: (peek, incoming) => peek > incoming,
+
+    // 寻找右侧第一个更高的元素 (Next Greater Element, >=) -> 对应递减栈
+    NextGreaterElement: (peek, incoming) => peek <= incoming,
+
+    // 寻找右侧第一个严格更高的元素 (Next Strictly Greater Element, >)
+    NextStrictlyGreaterElement: (peek, incoming) => peek < incoming,
+};
